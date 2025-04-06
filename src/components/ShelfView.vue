@@ -96,7 +96,6 @@ import { editLength } from './Utils'
 import MemberBook from './MemberBook'
 
 const makeBook = (untidied) => {
-  console.log(untidied)
   return untidied.map((item) => {
     return new MemberBook(
       item.title,

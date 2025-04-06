@@ -92,8 +92,8 @@
 import ResultSkeleton from './skeleton/ResultSkeleton.vue'
 import Book from './Book'
 import { computed, reactive } from 'vue'
-import axios from 'axios'
 import { editLength } from './Utils'
+import * as bookApi from '../boot/bookApi'
 
 const makeBook = (untidied) => {
   return untidied.map((item) => {
@@ -124,48 +124,32 @@ const groupedItems = computed(() => {
 })
 
 async function onOwnClick(item) {
-  const response = await axios.post(
-    `${process.env.LOCAL_SPRING_SERVER}/api/memberbook/own`,
-    {
-      title: item.title,
-      author: item.author,
-      publisher: item.publisher,
-      cover: item.cover,
-      pubDate: item.pubDate,
-      isbn13: item.isbn13,
-      itemPage: item.itemPage,
-      seriesName: item.seriesName,
-      categoryName: item.categoryName,
-    },
-    {
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    },
-  )
+  const response = await bookApi.own({
+    title: item.title,
+    author: item.author,
+    publisher: item.publisher,
+    cover: item.cover,
+    pubDate: item.pubDate,
+    isbn13: item.isbn13,
+    itemPage: item.itemPage,
+    seriesName: item.seriesName,
+    categoryName: item.categoryName,
+  })
   console.log(response)
 }
 
 async function onLikeClick(item) {
-  const response = await axios.post(
-    `${process.env.LOCAL_SPRING_SERVER}/api/memberbook/like`,
-    {
-      title: item.title,
-      author: item.author,
-      publisher: item.publisher,
-      cover: item.cover,
-      pubDate: item.pubDate,
-      isbn13: item.isbn13,
-      itemPage: item.itemPage,
-      seriesName: item.seriesName,
-      categoryName: item.categoryName,
-    },
-    {
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    },
-  )
+  const response = await bookApi.like({
+    title: item.title,
+    author: item.author,
+    publisher: item.publisher,
+    cover: item.cover,
+    pubDate: item.pubDate,
+    isbn13: item.isbn13,
+    itemPage: item.itemPage,
+    seriesName: item.seriesName,
+    categoryName: item.categoryName,
+  })
   console.log(response)
   item.like = !item.like
 }
