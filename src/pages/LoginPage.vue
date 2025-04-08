@@ -25,6 +25,10 @@
           <q-btn label="Submit" type="submit" color="primary" />
           <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
         </div>
+        <div class="text-subtitle2">
+          아직 회원이 아니신가요?
+          <q-btn label="Join" to="/join" color="primary" class="q-ml-sm" />
+        </div>
       </q-form>
     </div>
     <div v-if="loggedInState.isLoggedIn">이미 로그인한 계정입니다.</div>

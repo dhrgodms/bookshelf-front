@@ -52,9 +52,11 @@
 import axios from 'axios'
 import { useQuasar } from 'quasar'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 const $q = useQuasar()
 const params = new URLSearchParams()
+const router = useRouter()
 
 const loginId = ref('123')
 const name = ref('123')
@@ -89,6 +91,7 @@ async function onSubmit() {
     })
   }
   onResetParams()
+  router.push('/login')
 }
 
 function onReset() {
