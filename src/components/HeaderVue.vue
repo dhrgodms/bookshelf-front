@@ -7,7 +7,7 @@
         <q-space />
         <q-btn flat round dense icon="search" class="q-mr-xs" to="/book/search" />
         <!-- [ ] userId로 구분하는거 설정해야됨 -->
-        <q-btn flat round dense icon="shelves" to="/member/shelf/1" />
+        <q-btn flat round dense icon="shelves" to="/member/shelf" />
         <q-btn
           v-if="!loggedInState.isLoggedIn"
           flat

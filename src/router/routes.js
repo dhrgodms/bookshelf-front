@@ -34,7 +34,7 @@ const routes = [
     meta: { requiresAuth: true },
     children: [
       { path: '', component: () => import('pages/MemberHome.vue') }, // [ ] TODO member 페이지
-      { path: 'shelf/:memberId', component: () => import('pages/MemberShelfPage.vue') },
+      { path: 'shelf', component: () => import('pages/MemberShelfPage.vue') },
     ],
   },
 

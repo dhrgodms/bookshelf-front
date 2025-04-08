@@ -45,6 +45,7 @@ export default boot(({ app, router }) => {
   // 전역으로 사용할 수 있도록 등록
   app.config.globalProperties.$api = api
   app.config.globalProperties.$axios = axios
+  api.defaults.withCredentials = true
   axios.defaults.withCredentials = true
   app.provide('api', api)
 })

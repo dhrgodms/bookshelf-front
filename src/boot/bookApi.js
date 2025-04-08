@@ -1,10 +1,9 @@
-// import http from './http'
-import { axios } from './axios'
+import { api } from './axios'
 
 export async function like(book) {
-  return axios.post('/api/memberbook/like', book, { withCredentials: true })
+  return await api.post(`/api/memberbook/like`, book)
 }
 
 export async function own(book) {
-  return axios.post('/api/memberbook/own', book)
+  return await api.post(`/api/memberbook/own`, book)
 }

@@ -1,5 +1,5 @@
 <template>
-  <q-page class="flex column" style="align-items: center">
+  <q-page class="flex column" style="align-items: center; align-content: center">
     <SearchBar
       :searchQuery="searchQuery"
       @update:searchQuery="handleQuery"

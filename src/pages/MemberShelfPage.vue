@@ -1,5 +1,5 @@
 <template>
-  <q-page class="flex column" style="align-items: center">
+  <q-page class="flex column" style="align-items: center; align-content: center">
     <ShelfView :results="shelfBooks" :has-searched="hasSearched" :isLoading="isLoading" />
     <PaginationBar :page="page" @update:page="handlePage" />
   </q-page>
@@ -23,15 +23,12 @@ onMounted(getShelf)
 
 async function getShelf() {
   // 페이지 업데이트 (쿼리 파라미터로 페이지 정보 추가)
-  router.push(`/member/shelf/${memberId.value}?page=${page.value}`)
+  router.push(`/member/shelf?page=${page.value}`)
 
   try {
-    const response = await axios.get(
-      `${process.env.LOCAL_SPRING_SERVER}/api/member/shelf/${memberId.value}`,
-      {
-        params: { page: page.value },
-      },
-    )
+    const response = await axios.get(`${process.env.LOCAL_SPRING_SERVER}/api/member/shelf`, {
+      params: { page: page.value },
+    })
     console.log(response)
     shelfBooks.value = response.data || []
     hasSearched.value = true
