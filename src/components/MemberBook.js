@@ -13,6 +13,7 @@ class MemberBook {
     memberId,
     memberbookId,
     bookId,
+    link,
   ) {
     this.title = title
     this.author = author
@@ -27,6 +28,7 @@ class MemberBook {
     this.memberId = memberId
     this.memberbookId = memberbookId
     this.bookId = bookId
+    this.link = link
   }
 }
 

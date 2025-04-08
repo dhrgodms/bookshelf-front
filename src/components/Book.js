@@ -10,6 +10,7 @@ class Book {
     categoryName,
     like,
     have,
+    link,
   ) {
     this.title = title
     this.author = author
@@ -21,6 +22,7 @@ class Book {
     this.categoryName = categoryName
     this.like = like
     this.have = have
+    this.link = link
   }
 }
 

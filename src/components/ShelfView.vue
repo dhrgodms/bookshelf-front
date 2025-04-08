@@ -111,6 +111,7 @@ const makeBook = (untidied) => {
       item.bookId,
       item.memberbookId,
       item.memberId,
+      item.link,
     )
   })
 }

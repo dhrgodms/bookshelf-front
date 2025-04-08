@@ -1,7 +1,7 @@
 <template>
   <div class="q-py-md" style="width: 90%">
     <div class="q-gutter-y-md column" style="margin-top: 0">
-      <q-toolbar class="text-white rounded-borders bg-grey-8">
+      <q-toolbar class="text-white rounded-borders bg-grey-7">
         <q-btn round dense flat icon="menu" class="q-mr-xs" />
 
         <q-space />
@@ -30,7 +30,7 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue'
 import axios from 'axios'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps({
   page: Number,
@@ -41,8 +41,9 @@ const emit = defineEmits(['search-complete'])
 const searchResults = ref([])
 const hasSearched = ref(false)
 const isLoading = ref(true)
+const route = useRoute()
 const router = useRouter()
-const searchQuery = ref('')
+const searchQuery = ref(route.query.query)
 const page = ref(props.page)
 
 watch(
@@ -50,6 +51,13 @@ watch(
   (newPage) => {
     console.log(newPage, '로 이동 및 검색')
     page.value = newPage
+    search()
+  },
+)
+
+watch(
+  () => route.query.query,
+  () => {
     search()
   },
 )
@@ -80,6 +88,9 @@ const search = async () => {
 }
 
 onMounted(() => {
-  search()
+  console.log(route.query.query)
+  if (route.query.query) {
+    search()
+  }
 })
 </script>
