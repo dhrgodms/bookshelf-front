@@ -69,7 +69,7 @@ async function handleForm() {
   params.append('name', name.value)
   params.append('email', email.value)
   params.append('password', password.value)
-  const response = await axios.post(`${process.env.LOCAL_SPRING_SERVER}/join`, params)
+  const response = await axios.post(`${process.env.SPRING_SERVER}/join`, params)
   console.log(response.data)
 }
 

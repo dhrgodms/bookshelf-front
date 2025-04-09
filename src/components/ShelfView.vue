@@ -130,7 +130,7 @@ const groupedItems = computed(() => {
 async function onOwnClick(item) {
   console.log(item)
   const response = await axios.post(
-    `${process.env.LOCAL_SPRING_SERVER}/api/memberbook/own-change`,
+    `${process.env.SPRING_SERVER}/api/memberbook/own-change`,
     {
       memberbookId: item.memberbookId,
     },
@@ -145,7 +145,7 @@ async function onOwnClick(item) {
 
 async function onLikeClick(item) {
   const response = await axios.post(
-    `${process.env.LOCAL_SPRING_SERVER}/api/memberbook/like-change`,
+    `${process.env.SPRING_SERVER}/api/memberbook/like-change`,
     {
       memberbookId: item.memberbookId,
     },

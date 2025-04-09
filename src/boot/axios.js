@@ -6,7 +6,7 @@ import { Notify } from 'quasar'
 
 // API 클라이언트 설정
 const api = axios.create({
-  baseURL: process.env.LOCAL_SPRING_SERVER,
+  baseURL: process.env.SPRING_SERVER,
   timeout: 10000,
   withCredentials: true, // 세션 쿠키를 전송하기 위해
 })
