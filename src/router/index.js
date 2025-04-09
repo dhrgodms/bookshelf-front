@@ -48,7 +48,7 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     }
 
     try {
-      await axios.get(`${process.env.LOCAL_SPRING_SERVER}/api/auth/check`, {
+      await axios.get(`${process.env.SPRING_SERVER}/api/auth/check`, {
         withCredentials: true,
       })
       loggedInState.login()

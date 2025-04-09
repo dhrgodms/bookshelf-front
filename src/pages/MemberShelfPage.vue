@@ -26,7 +26,7 @@ async function getShelf() {
   router.push(`/member/shelf?page=${page.value}`)
 
   try {
-    const response = await axios.get(`${process.env.LOCAL_SPRING_SERVER}/api/member/shelf`, {
+    const response = await axios.get(`${process.env.SPRING_SERVER}/api/member/shelf`, {
       params: { page: page.value },
     })
     console.log(response)
