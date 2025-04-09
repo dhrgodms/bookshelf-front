@@ -1,15 +1,33 @@
 <template>
   <q-page class="flex column" style="align-items: center">
     <div class="q-pa-md" style="max-width: 400px">
-      <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
-        <q-input
-          filled
-          v-model="loginId"
-          label="Id *"
-          hint="아이디를 입력하세요."
-          lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Please type your id']"
-        />
+      <q-form @submit="onSubmitJoin" @reset="onResetJoin" class="q-gutter-md">
+        <div class="row" style="align-items: center; justify-content: space-between; gap: 0.6em">
+          <q-input
+            filled
+            v-model="loginId"
+            label="Id *"
+            :hint="
+              idCheck
+                ? '사용 가능한 아이디 입니다.'
+                : idCheck == false
+                  ? '중복된 아이디 입니다.'
+                  : '아이디를 입력해주세요.'
+            "
+            lazy-rules
+            :rules="[(val) => (val && val.length > 0) || 'Please type your id']"
+            :disable="idCheck"
+            outlined
+            :color="idCheck ? 'green' : 'red'"
+          />
+          <q-btn
+            label="중복확인"
+            color="primary"
+            style="height: fit-content; width: fit-content; font-size: 0.8em"
+            padding="xs"
+            @click="onCheckId"
+          />
+        </div>
         <q-input
           filled
           v-model="name"
@@ -59,10 +77,12 @@ const params = new URLSearchParams()
 const router = useRouter()
 
 const loginId = ref('123')
+const idCheck = ref(null)
 const name = ref('123')
 const email = ref('123@g.com')
 const password = ref('123')
 const accept = ref(true)
+const loginSuccess = ref(null)
 
 async function handleForm() {
   params.append('loginId', loginId.value)
@@ -70,11 +90,28 @@ async function handleForm() {
   params.append('email', email.value)
   params.append('password', password.value)
   const response = await axios.post(`${process.env.SPRING_SERVER}/join`, params)
-  console.log(response.data)
+  if (`${response.data}`.startsWith('[ERROR]')) {
+    loginSuccess.value = false
+  } else {
+    loginSuccess.value = true
+  }
 }
 
-async function onSubmit() {
-  if (accept.value !== true) {
+async function onCheckId() {
+  const response = await axios.get(`${process.env.SPRING_SERVER}/join/check-id/${loginId.value}`)
+  idCheck.value = response.data
+}
+
+async function onSubmitJoin() {
+  if (!idCheck.value) {
+    $q.notify({
+      color: 'red-9',
+      textColor: 'white',
+      icon: 'warning',
+      message: '아이디 중복 확인을 해야 합니다.',
+    })
+  } else if (accept.value !== true) {
+    onResetJoin()
     $q.notify({
       color: 'red-9',
       textColor: 'white',
@@ -83,18 +120,29 @@ async function onSubmit() {
     })
   } else {
     await handleForm()
-    $q.notify({
-      color: 'green-9',
-      textColor: 'white',
-      icon: 'cloud_done',
-      message: 'Submitted',
-    })
+    if (loginSuccess.value) {
+      $q.notify({
+        color: 'green-9',
+        textColor: 'white',
+        icon: 'cloud_done',
+        message: '회원가입이 완료되었습니다. 환영합니다.',
+      })
+
+      router.push('/login')
+    } else {
+      $q.notify({
+        color: 'red-9',
+        textColor: 'white',
+        icon: 'warning',
+        message: '회원가입을 다시 시도해주세요.',
+      })
+
+      onResetJoin()
+    }
   }
-  onResetParams()
-  router.push('/login')
 }
 
-function onReset() {
+function onResetJoin() {
   loginId.value = null
   name.value = null
   email.value = null
@@ -104,9 +152,9 @@ function onReset() {
   onResetParams()
 }
 function onResetParams() {
-  params.delete('loginId')
-  params.delete('name')
-  params.delete('password')
-  params.delete('email')
+  params.delete('loginId', null)
+  params.delete('name', null)
+  params.delete('password', null)
+  params.delete('email', null)
 }
 </script>

@@ -13,7 +13,6 @@ const api = axios.create({
 
 export default boot(({ app, router }) => {
   // const router = useRouter()
-  console.log('오류처리중')
 
   // 응답 인터셉터 설정
   api.interceptors.response.use(
