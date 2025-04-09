@@ -1,9 +1,7 @@
 <template>
   <div class="q-py-md" style="width: 90%">
     <div class="q-gutter-y-md column" style="margin-top: 0">
-      <q-toolbar class="text-white rounded-borders bg-grey-7">
-        <q-btn round dense flat icon="menu" class="q-mr-xs" />
-
+      <q-toolbar class="text-white rounded-borders search_bar">
         <q-space />
 
         <q-input
@@ -28,8 +26,8 @@
 </template>
 
 <script setup>
+import { api } from 'src/boot/axios'
 import { onMounted, ref, watch } from 'vue'
-import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps({
@@ -69,7 +67,7 @@ const search = async () => {
   router.push(`/book/search?query=${encodeURIComponent(searchQuery.value)}&page=${page.value}`)
 
   try {
-    const response = await axios.get('/api/aladin/search', {
+    const response = await api.get('/api/aladin/search', {
       params: { query: searchQuery.value, page: page.value },
     })
     console.log(response)
@@ -94,3 +92,8 @@ onMounted(() => {
   }
 })
 </script>
+<style>
+.search_bar {
+  background-color: #a1a196;
+}
+</style>

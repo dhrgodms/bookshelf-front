@@ -34,8 +34,8 @@ import HeaderVue from 'src/components/HeaderVue.vue'
   place-items: center;
 }
 .component {
-  width: 70%;
-  min-width: 550px;
+  width: 100%;
+  min-width: 320px;
   max-width: 800px;
 }
 </style>

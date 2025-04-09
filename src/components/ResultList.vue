@@ -1,135 +1,135 @@
 <template>
-  <div class="q-pa-md items-start q-gutter-md">
-    <div v-if="groupedItems.length > 0" class="row justify-center">
-      <q-list>
-        <div
-          v-for="(row, rowIndex) in groupedItems"
-          :key="rowIndex"
-          class="row q-gutter-xs no-wrap"
-          style="height: 17em"
+  <div class="card-container row q-col-gutter-md q-pa-md customframe">
+    <div v-if="makeBook(props.results).length > 0" class="row justify-center">
+      <q-list class="row" style="gap: 0.4em; justify-content: center">
+        <q-card
+          v-for="item in makeBook(props.results)"
+          :key="item.id"
+          class="my-card col-12 col-sm-6 col-md-3"
+          flat
+          bordered
+          style="min-width: 11em; max-width: 13.5em; width: 25%"
         >
-          <q-card
-            v-for="item in row"
-            :key="item.id"
-            class="my-card q-my-sm q-pa-md col-3 column"
-            flat
-            bordered
-            style="min-width: 13.5em"
-          >
-            <div class="flex column" style="min-height: 5em">
-              <div class="flex row" style="min-height: 10em; align-items: flex-start">
-                <div class="flex column col-4" style="justify-items: center">
-                  <div class="flex column">
-                    <!-- <div v-if="item.like"> -->
-                    <q-badge
-                      v-if="item.like"
-                      color="accent"
-                      style="
-                        top: 1.5em;
-                        z-index: 1;
-                        left: -10px;
-                        font-size: 0.75em;
-                        font-weight: bold;
-                        width: fit-content;
-                      "
-                      floating
-                    >
-                      읽고싶은
-                    </q-badge>
-                    <!-- </div> -->
-                    <q-badge
-                      v-if="item.have"
-                      color="primary"
-                      style="left: -10px; font-size: 0.75em; font-weight: bold; width: fit-content"
-                      floating
-                    >
-                      소장중
-                    </q-badge>
-                  </div>
+          <div class="flex column" style="min-height: 5em">
+            <div class="flex row" style="min-height: 10em; align-items: flex-start">
+              <div class="flex column col-4" style="justify-items: center">
+                <div class="flex column">
+                  <!-- <div v-if="item.like"> -->
+                  <q-badge
+                    v-if="item.like"
+                    color="accent"
+                    style="
+                      top: 1.5em;
+                      z-index: 1;
+                      left: -10px;
+                      font-size: 0.75em;
+                      font-weight: bold;
+                      width: fit-content;
+                    "
+                    floating
+                  >
+                    읽고싶은
+                  </q-badge>
+                  <!-- </div> -->
+                  <q-badge
+                    v-if="item.have"
+                    color="primary"
+                    style="
+                      left: -10px;
+                      font-size: 0.75em;
+                      font-weight: bold;
+                      width: fit-content;
+                      z-index: 1;
+                    "
+                    floating
+                  >
+                    소장중
+                  </q-badge>
+                </div>
+                <div>
                   <div>
-                    <div>
-                      <q-img
-                        :src="item.cover"
-                        width="4.4em"
-                        style="padding: 0.5em; object-fit: contain"
-                      />
-                    </div>
+                    <q-img
+                      :src="item.cover"
+                      width="3.8em"
+                      style="margin: 0.5em; object-fit: contain"
+                    />
                   </div>
                 </div>
-                <div class="col-1"></div>
-                <div class="col-7 column">
+              </div>
+              <div class="col-1"></div>
+              <div class="col-7 column">
+                <q-card-section style="padding: 0; overflow: hidden">
+                  <div
+                    class="text-overline text-orange-9 q-my-sm col-7"
+                    style="font-size: 0.6em; line-height: normal; min-height: 2em"
+                  >
+                    {{ editLength(item.categoryName, 15) }}
+                  </div>
+                  <div
+                    class="text-subtitle2 col-5"
+                    style="line-height: normal; min-height: 2.5em; font-size: 0.85em"
+                  >
+                    {{ editLength(item.title, 20) }}
+                  </div>
+                </q-card-section>
+                <div class="col-6 column">
                   <q-card-section style="padding: 0; overflow: hidden">
                     <div
-                      class="text-overline text-orange-9 q-my-sm col-7"
-                      style="font-size: 0.6em; line-height: normal; min-height: 2em"
+                      class="text-caption col"
+                      style="font-size: 0.75em; line-height: 1.5em; min-height: 1.5em"
                     >
-                      {{ editLength(item.categoryName, 15) }}
+                      {{ editLength(item.author, 8) }}
+                    </div>
+                    <div class="text-caption col" style="font-size: 0.7em; line-height: 1.5em">
+                      {{ editLength(item.publisher, 8) }}
                     </div>
                     <div
-                      class="text-subtitle2 col-5"
-                      style="line-height: normal; min-height: 2.5em; font-size: 0.85em"
+                      class="text-caption text-grey col"
+                      style="font-size: 0.7em; line-height: 1.5em"
                     >
-                      {{ editLength(item.title, 20) }}
+                      {{ item.pubDate }}
+                    </div>
+                    <div
+                      class="text-caption text-grey col"
+                      style="font-size: 0.7em; line-height: 1.5em"
+                    >
+                      {{ item.isbn13 }}
                     </div>
                   </q-card-section>
-                  <div class="col-6 column">
-                    <q-card-section style="padding: 0; overflow: hidden">
-                      <div
-                        class="text-caption col"
-                        style="font-size: 0.75em; line-height: 1.5em; min-height: 1.5em"
-                      >
-                        {{ editLength(item.author, 8) }}
-                      </div>
-                      <div class="text-caption col" style="font-size: 0.7em; line-height: 1.5em">
-                        {{ editLength(item.publisher, 8) }}
-                      </div>
-                      <div
-                        class="text-caption text-grey col"
-                        style="font-size: 0.7em; line-height: 1.5em"
-                      >
-                        {{ item.pubDate }}
-                      </div>
-                      <div
-                        class="text-caption text-grey col"
-                        style="font-size: 0.7em; line-height: 1.5em"
-                      >
-                        {{ item.isbn13 }}
-                      </div>
-                    </q-card-section>
-                  </div>
                 </div>
               </div>
-              <div>
-                <q-card-actions class="flex row" style="justify-content: space-evenly; padding: 0">
-                  <q-btn
-                    class="motion-btn"
-                    flat
-                    padding="none"
-                    :color="item.like ? 'accent' : 'grey'"
-                    :icon="item.like ? 'favorite' : 'favorite_border'"
-                    @click="() => onLikeClick(item)"
-                    size="1.2em"
-                  />
-                  <q-toggle
-                    v-model="item.have"
-                    icon="shelves"
-                    size="3.4em"
-                    @click="() => onOwnClick(item)"
-                  />
-                  <q-btn
-                    class="motion-btn"
-                    flat
-                    padding="0.1em"
-                    :color="'grey'"
-                    :icon="'info'"
-                    :href="item.link"
-                    size="1em"
-                  />
-                </q-card-actions>
-              </div>
             </div>
-          </q-card>
-        </div>
+            <div>
+              <q-card-actions class="flex row" style="justify-content: space-evenly; padding: 0">
+                <q-btn
+                  class="motion-btn"
+                  flat
+                  padding="none"
+                  :color="item.like ? 'accent' : 'grey'"
+                  :icon="item.like ? 'favorite' : 'favorite_border'"
+                  @click="() => onLikeClick(item)"
+                  size="1.2em"
+                />
+                <q-toggle
+                  v-model="item.have"
+                  icon="shelves"
+                  size="3.4em"
+                  @click="() => onOwnClick(item)"
+                />
+                <q-btn
+                  class="motion-btn"
+                  flat
+                  padding="0.1em"
+                  :color="'grey'"
+                  :icon="'info'"
+                  :href="item.link"
+                  size="1em"
+                />
+              </q-card-actions>
+            </div>
+          </div>
+        </q-card>
+        <!-- </div> -->
       </q-list>
     </div>
     <div v-else-if="props.hasSearched">
@@ -148,7 +148,6 @@
 <script setup>
 import ResultSkeleton from './skeleton/ResultSkeleton.vue'
 import Book from './Book'
-import { computed, reactive } from 'vue'
 import { editLength } from './Utils'
 import * as bookApi from '../boot/bookApi'
 
@@ -169,17 +168,6 @@ const makeBook = (untidied) => {
     )
   })
 }
-
-const groupedItems = computed(() => {
-  return reactive(
-    makeBook(props.results).reduce((acc, item, index) => {
-      const rowIndex = Math.floor(index / 4)
-      if (!acc[rowIndex]) acc[rowIndex] = []
-      acc[rowIndex].push(item)
-      return acc
-    }, []),
-  )
-})
 
 async function onOwnClick(item) {
   const response = await bookApi.own({
@@ -282,5 +270,11 @@ const props = defineProps({
 .left-badge {
   right: 0px;
   left: 5px;
+}
+
+.customframe {
+  max-width: 800px;
+  min-width: 380px;
+  width: 100%;
 }
 </style>
