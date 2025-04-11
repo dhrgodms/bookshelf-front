@@ -1,5 +1,8 @@
 <template>
-  <div class="card-container row q-col-gutter-md q-pa-md customframe">
+  <div
+    class="card-container row q-col-gutter-md q-pa-md customframe"
+    style="justify-content: center"
+  >
     <div v-if="state.books.length > 0 && !state.isLoading" class="row justify-center">
       <q-list class="row" style="gap: 0.4em; justify-content: center">
         <q-card
@@ -131,7 +134,7 @@
       </q-list>
     </div>
     <div v-else-if="state.books.length == 0">
-      <ResultNone />
+      <ShelfResultNone />
     </div>
     <div v-else-if="state.isLoading">
       <ResultSkeleton />
@@ -146,7 +149,7 @@ import axios from 'axios'
 import { editLength } from './Utils'
 import MemberBook from './MemberBook'
 import { nextTick, onMounted, reactive, watch } from 'vue'
-import ResultNone from './ResultNone.vue'
+import ShelfResultNone from './ShelfResultNone.vue'
 
 const bookCache = new Map()
 
