@@ -29,7 +29,6 @@
                   >
                     읽고싶은
                   </q-badge>
-                  <!-- </div> -->
                   <q-badge
                     v-if="item.have"
                     color="primary"
@@ -130,7 +129,7 @@
         </q-card>
       </q-list>
     </div>
-    <div v-else-if="true">
+    <div v-else-if="state.loading">
       <ResultSkeleton />
     </div>
     <div v-else-if="props.hasSearched && state.books.length == 0">
@@ -148,16 +147,19 @@ import { editLength } from './Utils'
 import * as bookApi from '../boot/bookApi'
 import { nextTick, onMounted, reactive, watch } from 'vue'
 import ResultNone from './ResultNone.vue'
+import { useRoute } from 'vue-router'
 
 const bookCache = new Map()
+const route = useRoute()
 
 const state = reactive({
   books: [],
-  loading: true,
+  loading: false,
   error: null,
 })
 
 const makeBook = async () => {
+  state.loading = true
   const newBooks = []
 
   for (const item of props.results) {
@@ -228,28 +230,25 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  isLoading: {
-    type: Boolean,
-    default: true,
-  },
 })
 
 watch(
   () => props.results,
   (newResults) => {
-    state.isLoading = true
+    state.loading = true
     if (newResults && newResults.length > 0) {
       makeBook()
     } else {
       state.books = []
-      state.isLoading = false
+      state.loading = false
     }
   },
 )
 
 onMounted(async () => {
   await nextTick()
-  console.log('마운트 후 hasSearched=' + props.hasSearched)
+  if (!route.query.query) state.loading = false
+  else state.loading = true
 
   const waitUntilReady = () => {
     if (props.results && props.results.length > 0) {

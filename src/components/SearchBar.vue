@@ -32,13 +32,13 @@ import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps({
   page: Number,
+  isLoading: Boolean,
 })
 
 const emit = defineEmits(['search-complete'])
 
 const searchResults = ref([])
 const hasSearched = ref(false)
-const isLoading = ref(true)
 const route = useRoute()
 const router = useRouter()
 const searchQuery = ref(route.query.query)
@@ -78,10 +78,8 @@ const search = async () => {
     searchResults.value = []
     hasSearched.value = true
     emit('search-complete', [])
-  } finally {
-    isLoading.value = false
   }
-  return { searchResults, hasSearched, searchQuery, props, search, isLoading }
+  return { searchResults, hasSearched, searchQuery, props, search }
 }
 
 onMounted(() => {

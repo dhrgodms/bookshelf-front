@@ -7,6 +7,7 @@
       :searchResults="searchResults"
       :page="page"
       :max-page="maxPage"
+      :is-loading="isLoading"
     />
     <ResultList :results="searchResults" :has-searched="hasSearched" :is-loading="isLoading" />
     <PaginationBar
@@ -29,7 +30,7 @@ const router = useRouter()
 const searchResults = ref([])
 const searchQuery = ref('')
 const hasSearched = ref(false)
-const isLoading = ref(true)
+const isLoading = ref(false)
 const page = ref(1)
 const maxPage = ref(5)
 
