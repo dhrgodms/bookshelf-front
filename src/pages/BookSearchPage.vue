@@ -6,9 +6,15 @@
       @search-complete="handleSearchResults"
       :searchResults="searchResults"
       :page="page"
+      :max-page="maxPage"
     />
-    <ResultList :results="searchResults" :has-searched="hasSearched" :isLoading="isLoading" />
-    <PaginationBar :page="page" @update:page="handlePage" />
+    <ResultList :results="searchResults" :has-searched="hasSearched" :is-loading="isLoading" />
+    <PaginationBar
+      :page="page"
+      @update:page="handlePage"
+      :max-page="maxPage"
+      :has-searched="hasSearched"
+    />
   </q-page>
 </template>
 
@@ -25,6 +31,7 @@ const searchQuery = ref('')
 const hasSearched = ref(false)
 const isLoading = ref(true)
 const page = ref(1)
+const maxPage = ref(5)
 
 const handleSearchResults = (results) => {
   isLoading.value = false
