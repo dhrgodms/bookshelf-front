@@ -1,9 +1,9 @@
 <template>
-  <div class="card-container row q-col-gutter-md q-pa-md customframe">
-    <div v-if="makeBook(props.results).length > 0" class="row justify-center">
+  <div class="card-container row customframe" style="justify-content: center">
+    <div v-if="state.books.length > 0" class="row justify-center">
       <q-list class="row" style="gap: 0.4em; justify-content: center">
         <q-card
-          v-for="item in makeBook(props.results)"
+          v-for="item in state.books"
           :key="item.id"
           class="my-card col-12 col-sm-6 col-md-3"
           flat
@@ -14,7 +14,6 @@
             <div class="flex row" style="min-height: 10em; align-items: flex-start">
               <div class="flex column col-4" style="justify-items: center">
                 <div class="flex column">
-                  <!-- <div v-if="item.like"> -->
                   <q-badge
                     v-if="item.like"
                     color="accent"
@@ -129,48 +128,68 @@
             </div>
           </div>
         </q-card>
-        <!-- </div> -->
       </q-list>
     </div>
-    <div v-else-if="props.hasSearched">
-      <q-card class="my-card q-my-sm" flat bordered>
-        <q-card-section horizontal class="items-center justify-between">
-          <div class="text-subtitle1">검색 결과가 없습니다.</div>
-        </q-card-section>
-      </q-card>
-    </div>
-    <div v-else>
+    <div v-else-if="true">
       <ResultSkeleton />
     </div>
+    <div v-else-if="props.hasSearched && state.books.length == 0">
+      <ResultNone />
+    </div>
+    <div v-else-if="!props.hasSearched"><BeforeSearch /></div>
   </div>
 </template>
 
 <script setup>
 import ResultSkeleton from './skeleton/ResultSkeleton.vue'
+import BeforeSearch from './BeforeSearch.vue'
 import Book from './Book'
 import { editLength } from './Utils'
 import * as bookApi from '../boot/bookApi'
+import { nextTick, onMounted, reactive, watch } from 'vue'
+import ResultNone from './ResultNone.vue'
 
-const makeBook = (untidied) => {
-  return untidied.map((item) => {
-    return new Book(
-      item.title,
-      item.author,
-      item.publisher,
-      item.cover,
-      item.pubDate,
-      item.isbn13,
-      item.seriesInfo?.seriesName,
-      item.categoryName,
-      item.like,
-      item.have,
-      item.link,
-    )
-  })
+const bookCache = new Map()
+
+const state = reactive({
+  books: [],
+  loading: true,
+  error: null,
+})
+
+const makeBook = async () => {
+  const newBooks = []
+
+  for (const item of props.results) {
+    const cached = bookCache.get(item.isbn13)
+
+    if (cached) {
+      newBooks.push(cached)
+    } else {
+      const newBook = new Book(
+        item.title,
+        item.author,
+        item.publisher,
+        item.cover,
+        item.pubDate,
+        item.isbn13,
+        item.seriesInfo?.seriesName,
+        item.categoryName,
+        item.like,
+        item.have,
+        item.link,
+      )
+      bookCache.set(item.isbn13, newBook)
+      newBooks.push(newBook)
+    }
+  }
+  state.books = newBooks
+  state.loading = false
+  return state.books
 }
 
 async function onOwnClick(item) {
-  const response = await bookApi.own({
+  await bookApi.own({
     title: item.title,
     author: item.author,
     publisher: item.publisher,
@@ -182,11 +201,10 @@ async function onOwnClick(item) {
     categoryName: item.categoryName,
     link: item.link,
   })
-  console.log(response)
 }
 
 async function onLikeClick(item) {
-  const response = await bookApi.like({
+  await bookApi.like({
     title: item.title,
     author: item.author,
     publisher: item.publisher,
@@ -198,7 +216,6 @@ async function onLikeClick(item) {
     categoryName: item.categoryName,
     link: item.link,
   })
-  console.log(response)
   item.like = !item.like
 }
 
@@ -215,6 +232,34 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+})
+
+watch(
+  () => props.results,
+  (newResults) => {
+    state.isLoading = true
+    if (newResults && newResults.length > 0) {
+      makeBook()
+    } else {
+      state.books = []
+      state.isLoading = false
+    }
+  },
+)
+
+onMounted(async () => {
+  await nextTick()
+  console.log('마운트 후 hasSearched=' + props.hasSearched)
+
+  const waitUntilReady = () => {
+    if (props.results && props.results.length > 0) {
+      makeBook()
+    } else {
+      setTimeout(waitUntilReady, 100)
+    }
+  }
+
+  waitUntilReady()
 })
 </script>
 
