@@ -1,9 +1,9 @@
 <template>
   <div class="card-container row q-col-gutter-md q-pa-md customframe">
-    <div v-if="makeBook(props.results).length > 0" class="row justify-center">
+    <div v-if="state.books.length > 0 && !state.isLoading" class="row justify-center">
       <q-list class="row" style="gap: 0.4em; justify-content: center">
         <q-card
-          v-for="item in makeBook(props.results)"
+          v-for="item in state.books"
           :key="item.id"
           class="my-card col-12 col-sm-6 col-md-3"
           flat
@@ -14,7 +14,6 @@
             <div class="flex row" style="min-height: 10em; align-items: flex-start">
               <div class="flex column col-4" style="justify-items: center">
                 <div class="flex column">
-                  <!-- <div v-if="item.like"> -->
                   <q-badge
                     v-if="item.like"
                     color="accent"
@@ -30,7 +29,6 @@
                   >
                     읽고싶은
                   </q-badge>
-                  <!-- </div> -->
                   <q-badge
                     v-if="item.have"
                     color="primary"
@@ -132,16 +130,13 @@
         <!-- </div> -->
       </q-list>
     </div>
-    <div v-else-if="props.hasSearched">
-      <q-card class="my-card q-my-sm" flat bordered>
-        <q-card-section horizontal class="items-center justify-between">
-          <div class="text-subtitle1">검색 결과가 없습니다.</div>
-        </q-card-section>
-      </q-card>
+    <div v-else-if="state.books.length == 0">
+      <ResultNone />
     </div>
-    <div v-else>
+    <div v-else-if="state.isLoading">
       <ResultSkeleton />
     </div>
+    <div v-else></div>
   </div>
 </template>
 
@@ -150,31 +145,53 @@ import ResultSkeleton from './skeleton/ResultSkeleton.vue'
 import axios from 'axios'
 import { editLength } from './Utils'
 import MemberBook from './MemberBook'
+import { nextTick, onMounted, reactive, watch } from 'vue'
+import ResultNone from './ResultNone.vue'
 
-const makeBook = (untidied) => {
-  return untidied.map((item) => {
-    return new MemberBook(
-      item.title,
-      item.author,
-      item.publisher,
-      item.cover,
-      item.pubDate,
-      item.isbn,
-      item.seriesInfo?.seriesName,
-      item.categoryName,
-      item.like,
-      item.have,
-      item.bookId,
-      item.memberbookId,
-      item.memberId,
-      item.link,
-    )
-  })
+const bookCache = new Map()
+
+const state = reactive({
+  books: [],
+  loading: true,
+  error: null,
+})
+
+const makeBook = async () => {
+  const newBooks = []
+
+  for (const item of props.results) {
+    const cached = bookCache.get(item.isbn)
+
+    if (cached) {
+      newBooks.push(cached)
+    } else {
+      const newBook = new MemberBook(
+        item.title,
+        item.author,
+        item.publisher,
+        item.cover,
+        item.pubDate,
+        item.isbn,
+        item.seriesInfo?.seriesName,
+        item.categoryName,
+        item.like,
+        item.have,
+        item.bookId,
+        item.memberbookId,
+        item.memberId,
+        item.link,
+      )
+      bookCache.set(item.isbn, newBook)
+      newBooks.push(newBook)
+    }
+  }
+  state.books = newBooks
+  state.loading = false
+  return state.books
 }
 
 async function onOwnClick(item) {
-  console.log(item)
-  const response = await axios.post(
+  await axios.post(
     `${process.env.SPRING_SERVER}/api/memberbook/own-change`,
     {
       memberbookId: item.memberbookId,
@@ -185,11 +202,10 @@ async function onOwnClick(item) {
       },
     },
   )
-  console.log(response)
 }
 
 async function onLikeClick(item) {
-  const response = await axios.post(
+  await axios.post(
     `${process.env.SPRING_SERVER}/api/memberbook/like-change`,
     {
       memberbookId: item.memberbookId,
@@ -200,7 +216,6 @@ async function onLikeClick(item) {
       },
     },
   )
-  console.log(response)
   item.like = !item.like
 }
 
@@ -218,6 +233,29 @@ const props = defineProps({
     default: true,
   },
 })
+
+onMounted(async () => {
+  await nextTick()
+
+  const waitUntilReady = () => {
+    if (props.results && props.results.length > 0) {
+      makeBook()
+    } else {
+      setTimeout(waitUntilReady, 100)
+    }
+  }
+
+  waitUntilReady()
+})
+
+watch(
+  () => props.results,
+  (newResults) => {
+    if (newResults && newResults.length > 0) {
+      makeBook()
+    }
+  },
+)
 </script>
 
 <style lang="scss" scoped>

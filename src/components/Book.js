@@ -20,8 +20,8 @@ class Book {
     this.isbn13 = isbn13
     this.seriesName = seriesName
     this.categoryName = categoryName
-    this.like = like
-    this.have = have
+    this.like = false
+    this.have = false
     this.link = link
   }
 }

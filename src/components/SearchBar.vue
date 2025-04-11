@@ -70,7 +70,6 @@ const search = async () => {
     const response = await api.get('/api/aladin/search', {
       params: { query: searchQuery.value, page: page.value },
     })
-    console.log(response)
     searchResults.value = response.data || []
     hasSearched.value = true
     emit('search-complete', searchResults.value)
@@ -86,7 +85,6 @@ const search = async () => {
 }
 
 onMounted(() => {
-  console.log(route.query.query)
   if (route.query.query) {
     search()
   }
