@@ -9,6 +9,11 @@ const api = axios.create({
   baseURL: process.env.SPRING_SERVER,
   timeout: 10000,
   withCredentials: true, // 세션 쿠키를 전송하기 위해
+  headers: {
+    headers: {
+      access: localStorage.getItem('access'),
+    },
+  },
 })
 
 export default boot(({ app, router }) => {
@@ -16,6 +21,13 @@ export default boot(({ app, router }) => {
 
   // 응답 인터셉터 설정
   api.interceptors.response.use(
+    (config) => {
+      const token = localStorage.getItem('access')
+      if (token) {
+        config.headers['access'] = token
+      }
+      return config
+    },
     (response) => response,
     (error) => {
       console.log('401처리중')

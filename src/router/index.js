@@ -6,7 +6,6 @@ import {
   createWebHashHistory,
 } from 'vue-router'
 import routes from './routes'
-import axios from 'axios'
 import { useLoggedIn } from 'src/stores/loggedIn'
 // import api from '../boot/axios'
 // import axios from '../boot/axios'
@@ -47,13 +46,12 @@ export default defineRouter(function (/* { store, ssrContext } */) {
       return
     }
 
-    try {
-      await axios.get(`${process.env.SPRING_SERVER}/api/auth/check`, {
-        withCredentials: true,
-      })
+    const accessToken = localStorage.getItem('access')
+    if (accessToken) {
+      console.log('accesstoken in index.js: ' + accessToken)
       loggedInState.login()
       next()
-    } catch {
+    } else {
       loggedInState.logout()
       next('/login')
     }

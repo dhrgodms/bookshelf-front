@@ -44,17 +44,17 @@ async function onLogoutClick() {
   const response = await authApi.logout()
   console.log(response.data)
   router.push('/')
-  if (response.data == 'logoutSuccess') {
-    console.log('로그아웃 되었습니다.')
-    loggedInState.logout()
-    userInfoState.setUsername('')
-    $q.notify({
-      color: 'green-9',
-      textColor: 'white',
-      icon: 'cloud_done',
-      message: '로그아웃 되었습니다.',
-    })
-  }
+  console.log('로그아웃 되었습니다.')
+  localStorage.removeItem('access')
+  localStorage.removeItem('refresh')
+  loggedInState.logout()
+  userInfoState.setUsername('')
+  $q.notify({
+    color: 'green-9',
+    textColor: 'white',
+    icon: 'cloud_done',
+    message: '로그아웃 되었습니다.',
+  })
 }
 </script>
 <style>

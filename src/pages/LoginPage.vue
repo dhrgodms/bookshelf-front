@@ -54,8 +54,27 @@ const password = ref('123')
 const result = ref(null)
 
 async function handleForm() {
-  const response = await authApi.login(loginId.value, password.value)
-  result.value = response.data
+  authApi
+    .login(loginId.value, password.value)
+    .then((response) => {
+      result.value = response.data
+      console.log(response.headers)
+      const accessToken = response.headers['access']
+      const refreshToken = response.headers['refresh']
+
+      if (accessToken) {
+        localStorage.setItem('access', accessToken)
+      }
+      if (refreshToken) {
+        localStorage.setItem('refresh', refreshToken)
+      }
+      console.log(accessToken)
+
+      console.log('Login success!!')
+    })
+    .catch((err) => {
+      console.error('Login Failed:', err)
+    })
 }
 
 async function onSubmit() {
