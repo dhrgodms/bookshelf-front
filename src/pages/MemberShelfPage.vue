@@ -15,7 +15,8 @@
 </template>
 
 <script setup>
-import axios from 'axios'
+// import axios from 'axios'
+import { api } from 'src/boot/axios'
 import PaginationBar from 'src/components/PaginationBar.vue'
 import ShelfSearchBar from 'src/components/ShelfSearchBar.vue'
 import ShelfView from 'src/components/ShelfView.vue'
@@ -38,10 +39,13 @@ async function getShelf() {
   router.push(`/member/shelf?page=${page.value}`)
 
   try {
-    const response = await axios.get(`${process.env.SPRING_SERVER}/api/member/shelf`, {
+    const access = localStorage.getItem('access')
+    const response = await api.get(`${process.env.SPRING_SERVER}/api/member/shelf`, {
       params: { page: page.value },
+      headers: { access: access },
     })
     shelfBooks.value = response.data || []
+    searchResults.value = shelfBooks.value
     hasSearched.value = true
     // emit('search-complete', searchResults.value)
   } catch (error) {
@@ -53,7 +57,7 @@ async function getShelf() {
     isLoading.value = false
   }
 
-  return { searchResults: shelfBooks, hasSearched, isLoading }
+  return { searchResults, hasSearched, isLoading }
 }
 
 const handlePage = (newPage) => {
@@ -62,6 +66,7 @@ const handlePage = (newPage) => {
 
 const handleSearchResults = (results) => {
   isLoading.value = false
+  console.log(shelfBooks.value[0])
   searchResults.value = results
   hasSearched.value = true
 }

@@ -67,8 +67,10 @@ const search = async () => {
   router.push(`/book/search?query=${encodeURIComponent(searchQuery.value)}&page=${page.value}`)
 
   try {
+    const access = localStorage.getItem('access')
     const response = await api.get('/api/aladin/search', {
       params: { query: searchQuery.value, page: page.value },
+      headers: { access: access },
     })
     searchResults.value = response.data || []
     hasSearched.value = true

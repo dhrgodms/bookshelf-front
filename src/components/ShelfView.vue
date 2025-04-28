@@ -145,11 +145,11 @@
 
 <script setup>
 import ResultSkeleton from './skeleton/ResultSkeleton.vue'
-import axios from 'axios'
 import { editLength } from './Utils'
 import MemberBook from './MemberBook'
 import { nextTick, onMounted, reactive, watch } from 'vue'
 import ShelfResultNone from './ShelfResultNone.vue'
+import { api } from 'src/boot/axios'
 
 const bookCache = new Map()
 
@@ -194,7 +194,7 @@ const makeBook = async () => {
 }
 
 async function onOwnClick(item) {
-  await axios.post(
+  await api.post(
     `${process.env.SPRING_SERVER}/api/memberbook/own-change`,
     {
       memberbookId: item.memberbookId,
@@ -208,7 +208,7 @@ async function onOwnClick(item) {
 }
 
 async function onLikeClick(item) {
-  await axios.post(
+  await api.post(
     `${process.env.SPRING_SERVER}/api/memberbook/like-change`,
     {
       memberbookId: item.memberbookId,
@@ -239,6 +239,8 @@ const props = defineProps({
 
 onMounted(async () => {
   await nextTick()
+  console.log(props.results)
+  console.log(state.books)
 
   const waitUntilReady = () => {
     if (props.results && props.results.length > 0) {

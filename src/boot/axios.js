@@ -10,9 +10,7 @@ const api = axios.create({
   timeout: 10000,
   withCredentials: true, // 세션 쿠키를 전송하기 위해
   headers: {
-    headers: {
-      access: localStorage.getItem('access'),
-    },
+    access: localStorage.getItem('access'),
   },
 })
 
@@ -29,8 +27,7 @@ export default boot(({ app, router }) => {
       return config
     },
     (response) => response,
-    (error) => {
-      console.log('401처리중')
+    async (error) => {
       // 401 Unauthorized 오류 처리
       if (error.response && error.response.status === 401) {
         const data = error.response.data
@@ -47,6 +44,26 @@ export default boot(({ app, router }) => {
           message: '로그인이 필요한 서비스입니다.',
         })
         router.push('/login')
+      }
+
+      //403 Forbidden 처리
+      if (error.response && error.response.status == 403) {
+        console.log(error)
+        const access = localStorage.getItem('access')
+        const refresh = localStorage.getItem('refresh')
+        if (access && refresh) {
+          const response = await api.post(
+            '/reissue',
+            {},
+            {
+              headers: { access: access, refresh: refresh },
+            },
+          )
+          console.log(response)
+
+          console.log('재발급 후 access token: ', localStorage.getItem('access'))
+          console.log('재발급 후 refresh token: ', localStorage.getItem('refresh'))
+        }
       }
 
       return Promise.reject(error)
