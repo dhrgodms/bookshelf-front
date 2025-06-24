@@ -4,6 +4,12 @@
     <div class="q-mt-xl q-mb-lg text-h4 text-weight-bold text-center shelf-list-title">
       나의 책장들
     </div>
+    <q-btn to="/shelf/add" color="primary" class="add-shelf-btn q-mb-lg" unelevated rounded>
+      <div class="row items-center no-wrap">
+        <q-icon name="add_circle" size="24px" class="q-mr-sm" />
+        <div class="add-shelf-text">새 책장 만들기</div>
+      </div>
+    </q-btn>
     <MemberShelfView :results="searchResults" :has-searched="hasSearched" :isLoading="isLoading" />
     <PaginationBar :page="page" @update:page="handlePage" />
   </q-page>
@@ -72,5 +78,22 @@ watch(page, () => router.push(`/${memberId.value}`, { params: { page: page.value
   padding-bottom: 5px; /* 아래쪽 여백 살짝 추가 */
   border-bottom: 2px solid #897e1e; /* 폴더 색깔이랑 맞춰서 밑줄 쫙! */
   display: inline-block; /* 밑줄이 글자 너비만큼만 가도록 */
+}
+
+.add-shelf-btn {
+  padding: 10px 20px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  box-shadow: 0 3px 10px rgba(137, 126, 30, 0.2); /* 책장 색상과 맞춘 그림자 */
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(137, 126, 30, 0.3);
+  }
+
+  .add-shelf-text {
+    font-size: 16px;
+  }
 }
 </style>
