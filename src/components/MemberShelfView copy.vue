@@ -3,10 +3,10 @@
     class="card-container row q-col-gutter-md q-pa-md customframe"
     style="justify-content: center"
   >
-    <div v-if="state.books.length > 0 && !state.isLoading" class="row justify-center">
+    <div v-if="state.shelves.length > 0 && !state.isLoading" class="row justify-center">
       <q-list class="row" style="gap: 0.4em; justify-content: center">
         <q-card
-          v-for="item in state.books"
+          v-for="item in state.shelves"
           :key="item.id"
           class="my-card col-12 col-sm-6 col-md-3"
           flat
@@ -18,22 +18,7 @@
               <div class="flex column col-4" style="justify-items: center">
                 <div class="flex column">
                   <q-badge
-                    v-if="item.like"
-                    color="accent"
-                    style="
-                      top: 1.5em;
-                      z-index: 1;
-                      left: -10px;
-                      font-size: 0.75em;
-                      font-weight: bold;
-                      width: fit-content;
-                    "
-                    floating
-                  >
-                    읽고싶은
-                  </q-badge>
-                  <q-badge
-                    v-if="item.have"
+                    v-if="item.shelfMemo == null"
                     color="primary"
                     style="
                       left: -10px;
@@ -44,7 +29,7 @@
                     "
                     floating
                   >
-                    소장중
+                    좋아요
                   </q-badge>
                 </div>
                 <div>
@@ -61,16 +46,10 @@
               <div class="col-7 column">
                 <q-card-section style="padding: 0; overflow: hidden">
                   <div
-                    class="text-overline text-orange-9 q-my-sm col-7"
-                    style="font-size: 0.6em; line-height: normal; min-height: 2em"
-                  >
-                    {{ editLength(item.categoryName, 15) }}
-                  </div>
-                  <div
                     class="text-subtitle2 col-5"
                     style="line-height: normal; min-height: 2.5em; font-size: 0.85em"
                   >
-                    {{ editLength(item.title, 20) }}
+                    {{ editLength(item.shelfName, 20) }}
                   </div>
                 </q-card-section>
                 <div class="col-6 column">
@@ -79,22 +58,13 @@
                       class="text-caption col"
                       style="font-size: 0.75em; line-height: 1.5em; min-height: 1.5em"
                     >
-                      {{ editLength(item.author, 8) }}
-                    </div>
-                    <div class="text-caption col" style="font-size: 0.7em; line-height: 1.5em">
-                      {{ editLength(item.publisher, 8) }}
+                      {{ editLength(item.shelfMemo, 8) }}
                     </div>
                     <div
                       class="text-caption text-grey col"
                       style="font-size: 0.7em; line-height: 1.5em"
                     >
-                      {{ item.pubDate }}
-                    </div>
-                    <div
-                      class="text-caption text-grey col"
-                      style="font-size: 0.7em; line-height: 1.5em"
-                    >
-                      {{ item.isbn13 }}
+                      {{ item.savedDate }}
                     </div>
                   </q-card-section>
                 </div>
@@ -117,23 +87,13 @@
                   size="3.4em"
                   @click="() => onOwnClick(item)"
                 />
-                <q-btn
-                  class="motion-btn"
-                  flat
-                  padding="0.1em"
-                  :color="'grey'"
-                  :icon="'info'"
-                  :href="item.link"
-                  size="1em"
-                />
               </q-card-actions>
             </div>
           </div>
         </q-card>
-        <!-- </div> -->
       </q-list>
     </div>
-    <div v-else-if="state.books.length == 0">
+    <div v-else-if="state.shelves.length == 0">
       <ShelfResultNone />
     </div>
     <div v-else-if="state.isLoading">
@@ -146,65 +106,36 @@
 <script setup>
 import ResultSkeleton from './skeleton/ResultSkeleton.vue'
 import { editLength } from './Utils'
-import MemberBook from './MemberBook'
 import { nextTick, onMounted, reactive, watch } from 'vue'
 import ShelfResultNone from './ShelfResultNone.vue'
 import { api } from 'src/boot/axios'
+import MemberShelfDto from './dto/MemberShelfDto'
 
-const bookCache = new Map()
+const shelfCache = new Map()
 
 const state = reactive({
-  books: [],
+  shelves: [],
   loading: true,
   error: null,
 })
 
-const makeBook = async () => {
-  const newBooks = []
+const makeShelf = async () => {
+  const newShelves = []
 
   for (const item of props.results) {
-    const cached = bookCache.get(item.isbn)
+    const cached = shelfCache.get(item.id)
 
     if (cached) {
-      newBooks.push(cached)
+      newShelves.push(cached)
     } else {
-      const newBook = new MemberBook(
-        item.title,
-        item.author,
-        item.publisher,
-        item.cover,
-        item.pubDate,
-        item.isbn,
-        item.seriesInfo?.seriesName,
-        item.categoryName,
-        item.like,
-        item.have,
-        item.bookId,
-        item.memberbookId,
-        item.memberId,
-        item.link,
-      )
-      bookCache.set(item.isbn, newBook)
-      newBooks.push(newBook)
+      const newShelf = new MemberShelfDto(item.id, item.member, item.shelf, item.savedDate)
+      shelfCache.set(item.id, newShelf)
+      newShelves.push(newShelf)
     }
   }
-  state.books = newBooks
+  state.shelves = newShelves
   state.loading = false
-  return state.books
-}
-
-async function onOwnClick(item) {
-  await api.post(
-    `${process.env.SPRING_SERVER}/api/memberbook/own-change`,
-    {
-      memberbookId: item.memberbookId,
-    },
-    {
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    },
-  )
+  return state.shelves
 }
 
 async function onLikeClick(item) {
@@ -239,12 +170,12 @@ const props = defineProps({
 
 onMounted(async () => {
   await nextTick()
-  console.log(props.results)
-  console.log(state.books)
+  // console.log(props.results)
+  // console.log(state.books)
 
   const waitUntilReady = () => {
     if (props.results && props.results.length > 0) {
-      makeBook()
+      makeShelf()
     } else {
       setTimeout(waitUntilReady, 100)
     }
@@ -257,7 +188,7 @@ watch(
   () => props.results,
   (newResults) => {
     if (newResults && newResults.length > 0) {
-      makeBook()
+      makeShelf()
     }
   },
 )

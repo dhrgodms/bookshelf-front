@@ -1,10 +1,6 @@
 <template>
   <q-page class="flex column" style="align-items: center; align-content: center">
-    <!-- ✨ 나의 책장들 타이틀 섹션 ✨ -->
-    <div class="q-mt-xl q-mb-lg text-h4 text-weight-bold text-center shelf-list-title">
-      나의 책장들
-    </div>
-    <MemberShelfView :results="searchResults" :has-searched="hasSearched" :isLoading="isLoading" />
+    <ShelfDetail :results="searchResults" :has-searched="hasSearched" :is-loading="isLoading" />
     <PaginationBar :page="page" @update:page="handlePage" />
   </q-page>
 </template>
@@ -16,7 +12,7 @@ import PaginationBar from 'src/components/PaginationBar.vue'
 
 import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import MemberShelfView from 'src/components/MemberShelfView.vue'
+import ShelfDetail from 'src/components/ShelfDetail.vue'
 const router = useRouter()
 const shelfShelves = ref([])
 const searchResults = ref([])
@@ -29,20 +25,17 @@ onMounted(getShelf)
 
 async function getShelf() {
   // 페이지 업데이트 (쿼리 파라미터로 페이지 정보 추가)
-  router.push(`/member/shelf?page=${page.value}`)
+  router.push(`/shelf/${1}`)
 
   try {
     const access = localStorage.getItem('access')
-    const response = await api.post(
-      `${process.env.SPRING_SERVER}/api/v1/membershelves/own`,
-      { username: 'userA' },
-      {
-        params: { page: page.value },
-        headers: { access: access },
-      },
-    )
-    shelfShelves.value = response.data || []
-    searchResults.value = shelfShelves.value.content
+    const response = await api.get(`${process.env.SPRING_SERVER}/api/v1/shelves/${1}`, {
+      params: { page: page.value },
+      headers: { access: access },
+    })
+
+    searchResults.value = response.data?.books || []
+    console.log(searchResults.value)
     hasSearched.value = true
     // emit('search-complete', searchResults.value)
   } catch (error) {
@@ -64,13 +57,3 @@ const handlePage = (newPage) => {
 // watch(searchQuery, () => console.log(searchQuery))
 watch(page, () => router.push(`/${memberId.value}`, { params: { page: page.value } }))
 </script>
-
-<style lang="scss" scoped>
-.shelf-list-title {
-  color: #424242; /* 깔끔한 다크 그레이로 가독성 UP! */
-  letter-spacing: -0.5px; /* 글자 간격 살짝 조절해서 더 예쁘게 */
-  padding-bottom: 5px; /* 아래쪽 여백 살짝 추가 */
-  border-bottom: 2px solid #897e1e; /* 폴더 색깔이랑 맞춰서 밑줄 쫙! */
-  display: inline-block; /* 밑줄이 글자 너비만큼만 가도록 */
-}
-</style>

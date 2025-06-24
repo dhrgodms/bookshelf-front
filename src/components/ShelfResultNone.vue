@@ -7,7 +7,7 @@
       text-color="black"
       icon="search"
       label="책 검색하러 가기"
-      to="/book/search"
+      to="/search"
     />
   </div>
 </template>

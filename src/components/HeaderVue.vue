@@ -5,7 +5,7 @@
         <q-btn flat round dense icon="home" class="q-mr-xs" to="/" />
 
         <q-space />
-        <q-btn flat round dense icon="search" class="q-mr-xs" to="/book/search" />
+        <q-btn flat round dense icon="search" class="q-mr-xs" to="/search" />
         <q-btn flat round dense icon="shelves" to="/member/shelf" />
         <q-btn
           v-if="!loggedInState.isLoggedIn"

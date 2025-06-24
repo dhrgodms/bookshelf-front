@@ -64,11 +64,11 @@ const search = async () => {
   if (!searchQuery.value.trim()) return
 
   // 페이지 업데이트 (쿼리 파라미터로 페이지 정보 추가)
-  router.push(`/book/search?query=${encodeURIComponent(searchQuery.value)}&page=${page.value}`)
+  router.push(`/search?query=${encodeURIComponent(searchQuery.value)}&page=${page.value}`)
 
   try {
     const access = localStorage.getItem('access')
-    const response = await api.get('/api/aladin/search', {
+    const response = await api.get('/api/v1/aladin/search', {
       params: { query: searchQuery.value, page: page.value },
       headers: { access: access },
     })

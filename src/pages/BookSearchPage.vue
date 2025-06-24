@@ -38,6 +38,7 @@ const handleSearchResults = (results) => {
   isLoading.value = false
   searchResults.value = results
   hasSearched.value = true
+  // console.log(searchResults.value)
 }
 
 const handleQuery = (query) => {

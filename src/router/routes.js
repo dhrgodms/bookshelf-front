@@ -3,7 +3,10 @@ const routes = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/IndexPage.vue'), meta: { requiresAuth: false } },
+      { path: '', name: 'home', component: () => import('pages/IndexPage.vue') },
+      // { path: 'shelf/:id', name: 'shelf-detail', component: () => import('pages/ShelfDetail.vue') },
+      { path: 'search', name: 'search', component: () => import('pages/BookSearchPage.vue') },
+      // { path: 'explore', name: 'explore', component: () => import('pages/ExploreShelves.vue') },
       {
         path: 'join',
         component: () => import('pages/JoinPage.vue'),
@@ -29,12 +32,28 @@ const routes = [
     ],
   },
   {
+    path: '/search',
+    component: () => import('layouts/MainLayout.vue'),
+    meta: { requiresAuth: true },
+    children: [{ path: '', component: () => import('pages/BookSearchPage.vue') }],
+  },
+  {
     path: '/member',
     component: () => import('layouts/MainLayout.vue'),
     meta: { requiresAuth: true },
     children: [
       { path: '', component: () => import('pages/MemberHome.vue') }, // [ ] TODO member 페이지
-      { path: 'shelf', component: () => import('pages/MemberShelfPage.vue') },
+      { path: 'shelf', component: () => import('src/pages/MemberShelfPage.vue') },
+      { path: 'book', component: () => import('src/pages/MemberBookPage.vue') },
+    ],
+  },
+  {
+    path: '/shelf',
+    component: () => import('layouts/MainLayout.vue'),
+    meta: { requiresAuth: true },
+    children: [
+      { path: ':id', component: () => import('pages/ShelfDetailPage.vue') },
+      { path: '', component: () => import('pages/MemberHome.vue') },
     ],
   },
   // {
