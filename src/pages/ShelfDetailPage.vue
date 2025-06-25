@@ -2,11 +2,11 @@
   <q-page class="flex column items-center q-pa-md">
     <!-- 책장 상세 정보 헤더 -->
     <q-card class="shelf-header q-pa-md q-my-md" flat bordered>
-      <div class="text-h4 text-weight-bold q-mb-sm text-primary">
-        {{ shelfInfo.name || '책장 이름' }}
+      <div class="text-h4 text-weight-bold q-mb-sm">
+        {{ shelfInfo.shelfName || '책장 이름' }}
       </div>
       <div class="text-subtitle1 text-grey-8 q-mb-md">
-        {{ shelfInfo.description || '책장 설명' }}
+        {{ shelfInfo.shelfMemo || '책장 설명' }}
       </div>
       <div class="row items-center q-gutter-sm">
         <q-badge
@@ -18,10 +18,10 @@
           {{ shelfInfo.isPublic ? '공개' : '비공개' }}
         </q-badge>
         <q-badge color="secondary" outline class="q-pa-sm rounded-borders">
-          <q-icon name="book" class="q-mr-xs" /> {{ searchResults.length }}권
+          <q-icon name="book" class="q-mr-xs" /> {{ shelfInfo.shelfBooks?.length || 0 }}권
         </q-badge>
         <q-badge color="accent" outline class="q-pa-sm rounded-borders">
-          <q-icon name="favorite" class="q-mr-xs" /> {{ shelfInfo.likeCount || 0 }}
+          <q-icon name="favorite" class="q-mr-xs" /> {{ shelfInfo.memberShelves?.length || 0 }}
         </q-badge>
       </div>
     </q-card>
@@ -38,7 +38,7 @@
 
     <!-- 책 목록 -->
     <q-card class="book-list-card q-pa-md" flat bordered>
-      <div class="text-h5 q-mb-md text-grey-9">책 목록</div>
+      <div class="text-subtitle1 q-mb-md text-grey-9" style="font-weight: bold">책 목록</div>
 
       <div v-if="isLoading" class="flex flex-center q-pa-xl">
         <q-spinner color="primary" size="3em" :thickness="5" />
@@ -52,10 +52,14 @@
 
       <div v-else>
         <q-list bordered separator class="rounded-borders">
-          <q-item v-for="book in searchResults" :key="book.id" class="q-py-md book-item">
+          <q-item
+            v-for="shelfBook in searchResults"
+            :key="shelfBook.shelfBookId"
+            class="q-py-md book-item"
+          >
             <q-item-section avatar>
               <q-img
-                :src="book.cover || 'https://placehold.co/80x120?text=No+Cover'"
+                :src="shelfBook.bookDto.cover || 'https://placehold.co/80x120?text=No+Cover'"
                 width="80px"
                 height="120px"
                 fit="contain"
@@ -65,17 +69,27 @@
 
             <q-item-section>
               <q-item-label class="text-weight-bold text-body1 text-grey-9">{{
-                book.title
+                shelfBook.bookDto.title
               }}</q-item-label>
-              <q-item-label caption class="text-grey-7">저자: {{ book.author }}</q-item-label>
-              <q-item-label caption class="text-grey-7">출판사: {{ book.publisher }}</q-item-label>
-              <q-item-label caption v-if="book.isbn" class="text-grey-7"
-                >ISBN: {{ book.isbn }}</q-item-label
+              <q-item-label caption class="text-grey-7"
+                >저자: {{ shelfBook.bookDto.author }}</q-item-label
+              >
+              <q-item-label caption class="text-grey-7"
+                >출판사: {{ shelfBook.bookDto.publisher }}</q-item-label
+              >
+              <q-item-label caption v-if="shelfBook.bookDto.isbn" class="text-grey-7"
+                >ISBN: {{ shelfBook.bookDto.isbn }}</q-item-label
               >
             </q-item-section>
 
             <q-item-section side>
-              <q-btn color="negative" flat round icon="delete" @click="removeBookFromShelf(book)" />
+              <q-btn
+                color="negative"
+                flat
+                round
+                icon="delete"
+                @click="removeBookFromShelf(shelfBook.shelfBookId)"
+              />
             </q-item-section>
           </q-item>
         </q-list>
@@ -177,15 +191,16 @@
 <script setup>
 import { api } from 'src/boot/axios'
 import PaginationBar from 'src/components/PaginationBar.vue'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
 
 const route = useRoute()
 const $q = useQuasar()
+const shelfId = ref(route.params.id)
 
 // 책장 정보
-const shelfId = ref(route.params.id || 1) // 실제 shelfId를 라우트 파라미터에서 가져오도록 수정
+console.log('shelfId = ' + shelfId.value)
 const shelfInfo = ref({})
 const searchResults = ref([])
 const hasSearched = ref(false)
@@ -199,11 +214,21 @@ const bookSearchResults = ref([])
 const isSearching = ref(false)
 const hasSearchedBooks = ref(false)
 
-onMounted(getShelf)
+onMounted(() => {
+  getShelf()
+})
 
+watch(
+  () => route.params.id,
+  (newId) => {
+    shelfId.value = newId
+    getShelf()
+  },
+)
 async function getShelf() {
   // 페이지 업데이트 (쿼리 파라미터로 페이지 정보 추가)
   // router.push(`/shelf/${shelfId.value}`) // 이 부분은 실제 라우팅 로직에 따라 조절
+  if (!shelfId.value) return
 
   try {
     const access = localStorage.getItem('access')
@@ -212,16 +237,15 @@ async function getShelf() {
     // 책장 정보 가져오기 (예: 이름, 설명, 공개 여부, 좋아요 수)
     // 실제 API 응답 구조에 따라 shelfInfo.value에 할당
     const shelfResponse = await api.get(
-      `${process.env.SPRING_SERVER}/api/v1/shelves/${shelfId.value}`,
+      `${process.env.SPRING_SERVER}/api/v1/shelfbooks/shelf/${shelfId.value}`,
       {
-        params: { page: page.value },
         headers: { access: access },
       },
     )
 
     console.log(shelfResponse.data)
-    shelfInfo.value = shelfResponse.data.shelf || {}
-    searchResults.value = shelfResponse.data?.books || [] // API 응답 구조에 맞게 수정
+    shelfInfo.value = shelfResponse.data || {}
+    searchResults.value = shelfResponse.data?.shelfBooks || [] // API 응답 구조에 맞게 수정
     hasSearched.value = true
   } catch (error) {
     console.error('책장 정보 가져오기 중 오류 발생:', error)
@@ -306,7 +330,7 @@ async function addBookToShelf(book) {
           link: book.link,
           pubdate: book.pubdate,
         },
-        shelfId: 1,
+        shelfId: shelfId.value,
       },
       {
         headers: { access: access },
@@ -335,7 +359,7 @@ async function addBookToShelf(book) {
 }
 
 // 책장에서 책 제거
-async function removeBookFromShelf(book) {
+async function removeBookFromShelf(shelfBookId) {
   try {
     $q.dialog({
       title: '책 제거',
@@ -346,12 +370,9 @@ async function removeBookFromShelf(book) {
     }).onOk(async () => {
       const access = localStorage.getItem('access')
       // 실제 책장-책 제거 API 엔드포인트에 맞게 수정
-      await api.delete(
-        `${process.env.SPRING_SERVER}/api/v1/shelves/${shelfId.value}/books/${book.id}`,
-        {
-          headers: { access: access },
-        },
-      )
+      await api.delete(`${process.env.SPRING_SERVER}/api/v1/shelfbooks/${shelfBookId}`, {
+        headers: { access: access },
+      })
 
       $q.notify({
         color: 'positive',
@@ -376,9 +397,6 @@ const handlePage = (newPage) => {
   page.value = newPage
   getShelf() // 페이지 변경 시 책 목록 다시 불러오기
 }
-
-// 페이지 변경 시 책장 정보 다시 가져오기 (watch는 필요에 따라 사용)
-// watch(page, () => getShelf()) // handlePage에서 이미 호출하므로 중복될 수 있음
 </script>
 
 <style lang="scss" scoped>

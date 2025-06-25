@@ -52,8 +52,8 @@ const routes = [
     component: () => import('layouts/MainLayout.vue'),
     meta: { requiresAuth: true },
     children: [
-      { path: ':id', component: () => import('pages/ShelfDetailPage.vue') },
       { path: 'add', component: () => import('pages/ShelfCreatePage.vue') },
+      { path: ':id', component: () => import('pages/ShelfDetailPage.vue') },
     ],
   },
   // {

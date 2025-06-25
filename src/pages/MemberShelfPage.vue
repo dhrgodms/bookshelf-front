@@ -48,6 +48,7 @@ async function getShelf() {
       },
     )
     shelfShelves.value = response.data || []
+    console.log(response.data)
     searchResults.value = shelfShelves.value.content
     hasSearched.value = true
     // emit('search-complete', searchResults.value)

@@ -10,7 +10,7 @@
           :key="item.id"
           class="folder-card col-12 col-sm-6 col-md-3"
           flat
-          @click="() => goToShelfDetail(item.id)"
+          @click="() => goToShelfDetail(item)"
           style="min-width: 11em; max-width: 13.5em; width: 25%; cursor: pointer"
         >
           <!-- 폴더 상단 부분 -->
@@ -107,7 +107,8 @@ const state = reactive({
 })
 
 // 책장 상세로 이동하는 메서드 추가
-function goToShelfDetail(shelfId) {
+function goToShelfDetail(item) {
+  const shelfId = item.shelfId
   // 라우터를 사용하여 상세 페이지로 이동
   router.push(`/shelf/${shelfId}`)
 }
