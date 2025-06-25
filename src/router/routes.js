@@ -3,18 +3,18 @@ const routes = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', name: 'home', component: () => import('pages/IndexPage.vue') },
+      { path: '', name: 'home', component: () => import('src/pages/default/IndexPage.vue') },
       // { path: 'shelf/:id', name: 'shelf-detail', component: () => import('pages/ShelfDetail.vue') },
       { path: 'search', name: 'search', component: () => import('pages/BookSearchPage.vue') },
       // { path: 'explore', name: 'explore', component: () => import('pages/ExploreShelves.vue') },
       {
         path: 'join',
-        component: () => import('pages/JoinPage.vue'),
+        component: () => import('src/pages/default/JoinPage.vue'),
         meta: { requiresAuth: false },
       },
       {
         path: 'login',
-        component: () => import('pages/LoginPage.vue'),
+        component: () => import('src/pages/default/LoginPage.vue'),
         meta: { requiresAuth: false },
       },
     ],
@@ -52,8 +52,8 @@ const routes = [
     component: () => import('layouts/MainLayout.vue'),
     meta: { requiresAuth: true },
     children: [
-      { path: 'add', component: () => import('pages/ShelfCreatePage.vue') },
-      { path: ':id', component: () => import('pages/ShelfDetailPage.vue') },
+      { path: 'add', component: () => import('src/pages/shelf/ShelfCreatePage.vue') },
+      { path: ':id', component: () => import('src/pages/shelf/ShelfDetailPage.vue') },
     ],
   },
   // {
@@ -70,7 +70,7 @@ const routes = [
   // but you can also remove it
   {
     path: '/:catchAll(.*)*',
-    component: () => import('pages/ErrorNotFound.vue'),
+    component: () => import('src/pages/default/ErrorNotFound.vue'),
   },
 ]
 

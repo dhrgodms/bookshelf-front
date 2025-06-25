@@ -39,7 +39,7 @@
 import { useQuasar } from 'quasar'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import * as authApi from '../boot/auth'
+import * as authApi from '../../boot/auth'
 import { useLoggedIn } from 'src/stores/loggedIn'
 import { useUserInfo } from 'src/stores/userInfo'
 
