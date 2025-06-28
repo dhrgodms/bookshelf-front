@@ -5,7 +5,6 @@ const routes = [
     children: [
       { path: '', name: 'home', component: () => import('src/pages/default/IndexPage.vue') },
       // { path: 'shelf/:id', name: 'shelf-detail', component: () => import('pages/ShelfDetail.vue') },
-      { path: 'search', name: 'search', component: () => import('pages/BookSearchPage.vue') },
       // { path: 'explore', name: 'explore', component: () => import('pages/ExploreShelves.vue') },
       {
         path: 'join',
@@ -20,6 +19,28 @@ const routes = [
     ],
   },
   {
+    path: '/search',
+    component: () => import('layouts/MainLayout.vue'),
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: '',
+        name: 'search-total',
+        component: () => import('pages/SearchPage.vue'),
+      },
+      {
+        path: 'book',
+        name: 'search-book',
+        component: () => import('pages/BookSearchPage.vue'),
+      },
+      {
+        path: 'shelf',
+        name: 'search-shelf',
+        component: () => import('pages/shelf/ShelfSearchPage.vue'),
+      },
+    ],
+  },
+  {
     path: '/book',
     component: () => import('layouts/MainLayout.vue'),
     meta: { requiresAuth: true },
@@ -30,12 +51,6 @@ const routes = [
       },
       { path: 'search', component: () => import('pages/BookSearchPage.vue') },
     ],
-  },
-  {
-    path: '/search',
-    component: () => import('layouts/MainLayout.vue'),
-    meta: { requiresAuth: true },
-    children: [{ path: '', component: () => import('pages/BookSearchPage.vue') }],
   },
   {
     path: '/member',
@@ -53,6 +68,7 @@ const routes = [
     meta: { requiresAuth: true },
     children: [
       { path: 'add', component: () => import('src/pages/shelf/ShelfCreatePage.vue') },
+      { path: 'search', component: () => import('src/pages/shelf/ShelfSearchPage.vue') },
       { path: ':id', component: () => import('src/pages/shelf/ShelfDetailPage.vue') },
     ],
   },

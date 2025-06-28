@@ -31,7 +31,7 @@
 import ResultSkeleton from './skeleton/ResultSkeleton.vue'
 import MemberBook from './dto/MemberBook'
 import { nextTick, onMounted, reactive, watch } from 'vue'
-import ShelfResultNone from './ShelfResultNone.vue'
+import ShelfResultNone from './BookResultNone.vue'
 // import { api } from 'src/boot/axios'
 import BookCard from './BookCard.vue'
 import { api } from 'src/boot/axios'

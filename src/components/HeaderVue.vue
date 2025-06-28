@@ -1,7 +1,7 @@
 <template>
   <div class="bg_header text-white flex" style="width: 100%; justify-content: center">
     <div style="width: 90%">
-      <q-toolbar style="min-height: 40px">
+      <q-toolbar style="min-height: 6vh">
         <q-btn flat round dense icon="home" class="q-mr-xs" to="/" />
 
         <q-space />

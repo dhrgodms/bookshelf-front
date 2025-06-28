@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="card-container row q-col-gutter-md q-pa-md customframe"
-    style="justify-content: center"
-  >
+  <div class="card-container row q-pa-md customframe" style="justify-content: center">
     <div v-if="state.shelves.length > 0 && !state.isLoading" class="row justify-center">
       <q-list class="row" style="gap: 1em; justify-content: flex-start">
         <q-card
@@ -26,7 +23,7 @@
                 </q-badge>
               </div>
 
-              <div class="flex" style="min-height: 5em; align-items: flex-start">
+              <div class="flex" style="min-height: 3.5em; align-items: flex-start">
                 <div class="col-1"></div>
                 <div class="col-7 column">
                   <q-card-section style="padding: 0; overflow: hidden">
@@ -92,10 +89,10 @@
 import ResultSkeleton from './skeleton/ResultSkeleton.vue'
 import { editDate, editLength } from './Utils'
 import { nextTick, onMounted, reactive, watch } from 'vue'
-import ShelfResultNone from './BookResultNone.vue'
+import ShelfResultNone from './ShelfResultNone.vue'
 import { api } from 'src/boot/axios'
-import MemberShelfDto from './dto/MemberShelfDto'
 import { useRouter } from 'vue-router'
+import ShelfDto from './dto/ShelfDto'
 
 const shelfCache = new Map()
 const router = useRouter()
@@ -122,7 +119,13 @@ const makeShelf = async () => {
     if (cached) {
       newShelves.push(cached)
     } else {
-      const newShelf = new MemberShelfDto(item.id, item.member, item.shelf, item.savedDate)
+      const newShelf = new ShelfDto(
+        item.id,
+        item.shelfName,
+        item.shelfMemo,
+        item.creator,
+        item.savedDate,
+      )
       shelfCache.set(item.id, newShelf)
       newShelves.push(newShelf)
     }
