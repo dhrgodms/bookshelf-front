@@ -1,7 +1,9 @@
 <template>
   <q-page class="flex column" style="align-items: center; align-content: center">
     <!-- ✨ 통합 검색 타이틀 섹션 ✨ -->
-    <div class="q-mt-xl q-mb-lg text-h4 text-weight-bold text-center search-title">통합 검색</div>
+    <div class="q-mt-xl q-mb-lg text-h4 text-weight-bold text-center shelf-list-title">
+      통합 검색
+    </div>
 
     <!-- 검색 입력 필드 -->
     <div class="search-container q-mb-lg">
@@ -34,18 +36,23 @@
       <div v-if="hasBookResults" class="result-section q-mb-xl">
         <div class="section-header">
           <div class="text-h5 text-weight-medium">책</div>
-          <q-btn flat color="primary" label="더보기" to="/search/book" />
+          <q-btn
+            flat
+            color="primary"
+            label="더보기"
+            :to="{ path: '/search/book', query: { query: searchKeyword || '' } }"
+          />
         </div>
 
         <div class="books-grid">
           <!-- 여기에 책 검색 결과 컴포넌트 -->
           <ResultList :results="bookResults" :isLoading="isLoadingBooks" />
         </div>
+        searchKeyword = {{ searchKeyword }}
       </div>
       <div v-else class="result-section q-mb-xl">
         <div class="section-header">
           <div class="text-h5 text-weight-medium">책</div>
-          <q-btn flat color="primary" label="더보기" to="/search/book" />
         </div>
         <p>검색 결과가 없습니다.</p>
       </div>
@@ -184,8 +191,8 @@ const search = async () => {
     const access = localStorage.getItem('access')
     // 여기에 실제 API 호출 코드가 들어갈 예정
     // 예: 책 검색 API 호출
-    const bookResponse = await api.get('/api/v1/aladin/search', {
-      params: { query: searchKeyword.value, page: page.value },
+    const bookResponse = await api.get('/api/v1/aladin/search/limit', {
+      params: { query: searchKeyword.value, page: page.value, limit: 4 },
       headers: { access: access },
     })
 
@@ -404,6 +411,100 @@ const search = async () => {
 
   .result-section {
     padding: 16px;
+  }
+}
+
+.shelf-list-title {
+  color: #424242;
+  letter-spacing: -0.5px;
+  padding-bottom: 5px;
+  border-bottom: 2px solid #897e1e;
+  display: inline-block;
+}
+
+.search-container {
+  width: 90%;
+  max-width: 600px;
+}
+
+.search-input {
+  width: 100%;
+  border-radius: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+:deep(.q-field__native) {
+  padding: 1em;
+}
+
+.add-shelf-btn {
+  padding: 10px 20px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  box-shadow: 0 3px 10px rgba(137, 126, 30, 0.2);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(137, 126, 30, 0.3);
+  }
+
+  .add-shelf-text {
+    font-size: 16px;
+  }
+}
+
+/* 검색 결과가 없을 때 표시할 스타일 */
+.no-results {
+  text-align: center;
+  padding: 40px 0;
+  color: #757575;
+  font-size: 18px;
+}
+
+.separator-line {
+  width: 100%; /* 가로 전체를 차지하도록 */
+  height: 2px; /* 얇고 부드러운 선 */
+  background-color: #e0e0e0; /* 연한 회색으로 은은하게 */
+  margin: 30px 0; /* 위아래로 여백을 줘서 시각적으로 구분되게 */
+  border-radius: 1px; /* 살짝 둥글게 해서 부드러운 느낌 주기 */
+}
+
+/* ✨ 새로 추가된 은은한 박스 스타일 ✨ */
+.my-shelves-box {
+  width: 100%; /* 부모 너비에 맞추고 */
+  max-width: 900px; /* 너무 넓어지지 않게 최대 너비 설정 (4개 카드에 적합) */
+  background-color: #fcfcfc; /* 아주 연한 배경색 */
+  border: 1px solid #f0f0f0; /* 거의 보이지 않는 연한 테두리 */
+  border-radius: 12px; /* 부드러운 모서리 */
+  padding: 20px; /* 내부 여백 */
+  margin-top: 20px; /* 위쪽 여백 */
+  margin-bottom: 20px; /* 아래쪽 여백 */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03); /* 아주 은은한 그림자 */
+  display: flex; /* 내부 콘텐츠를 유연하게 배치하기 위해 flex 사용 */
+  justify-content: center; /* 내부 콘텐츠를 중앙 정렬 */
+  align-items: center; /* 세로 중앙 정렬 */
+  transition: all 0.3s ease; /* 크기 변화를 부드럽게 */
+}
+/* 미디어 쿼리로 반응형 설정 추가 */
+@media (max-width: 1200px) {
+  .my-shelves-box {
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 768px) {
+  .my-shelves-box {
+    max-width: 95%;
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .my-shelves-box {
+    max-width: 98%;
+    padding: 10px;
+    margin: 15px auto;
   }
 }
 </style>

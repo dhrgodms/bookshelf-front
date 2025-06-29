@@ -1,28 +1,23 @@
 <template>
-  <div class="q-py-md search-container">
-    <div class="search-wrapper">
-      <q-input
-        v-model="searchQuery"
-        @input="updateSearchQuery(searchQuery)"
-        @keyup.enter="search"
-        placeholder="책 제목, 저자, 키워드로 검색해보세요"
-        class="custom-search-input"
-        borderless
-      >
-        <template v-slot:prepend>
-          <q-icon name="search" class="search-icon" />
-        </template>
-        <template v-slot:append>
-          <q-icon
-            v-if="searchQuery"
-            name="clear"
-            class="clear-icon cursor-pointer"
-            @click="searchQuery = ''"
-          />
-        </template>
-      </q-input>
-    </div>
+  <!-- 검색 입력 필드 -->
+  <div class="search-container q-mb-lg">
+    <q-input
+      v-model="searchQuery"
+      outlined
+      rounded
+      placeholder="책 제목, 저자, 키워드로 검색해보세요"
+      class="search-input"
+      bg-color="white"
+      @keyup.enter="search"
+    >
+      <template v-slot:append>
+        <q-btn round flat icon="search" @click="search" />
+      </template>
+    </q-input>
   </div>
+
+  <!-- 페이지네이션 -->
+  <PaginationBar :page="page" @update:page="handlePage" />
 </template>
 
 <script setup>
@@ -152,5 +147,50 @@ onMounted(() => {
 .custom-search-input input::placeholder {
   color: #9e9e9e;
   font-weight: 300;
+}
+.search-input {
+  width: 100%;
+  border-radius: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.search-container {
+  width: 90%;
+  max-width: 600px;
+  margin: 2em;
+}
+
+/* 전체 페이지 스타일 */
+.q-page {
+  padding-bottom: 60px;
+}
+
+/* 타이틀 스타일 */
+.search-title {
+  color: #427957;
+  margin-top: 40px;
+}
+
+/* 검색 컨테이너 스타일 */
+.search-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* 검색 입력 필드 스타일 */
+.search-input {
+  border-radius: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.search-input :deep(.q-field__control) {
+  height: 54px;
+}
+
+/* 검색 결과 컨테이너 스타일 */
+.search-results-container {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 </style>

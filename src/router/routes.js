@@ -38,6 +38,10 @@ const routes = [
         name: 'search-shelf',
         component: () => import('pages/shelf/ShelfSearchPage.vue'),
       },
+      {
+        path: 'barcode',
+        component: () => import('pages/BarcodeScanner.vue'),
+      },
     ],
   },
   {
