@@ -62,8 +62,6 @@ const makeBook = async () => {
       item.isbn,
       item.seriesName,
       item.categoryName,
-      item.like,
-      item.have,
       item.link,
     )
     bookCache.set(item.isbn13, newBook)

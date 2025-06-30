@@ -27,9 +27,10 @@
   </div>
 </template>
 
+<!-- TODO memberbook에 알맞게 수정하기 -->
 <script setup>
 import ResultSkeleton from './skeleton/ResultSkeleton.vue'
-import MemberBook from './dto/MemberBook'
+import MemberBookNew from './dto/MemberBookNew'
 import { nextTick, onMounted, reactive, watch } from 'vue'
 import ShelfResultNone from './BookResultNone.vue'
 // import { api } from 'src/boot/axios'
@@ -54,7 +55,8 @@ const makeBook = async () => {
     if (cached) {
       newBooks.push(cached)
     } else {
-      const newBook = new MemberBook(
+      const newBook = new MemberBookNew(
+        item.id,
         item.book.title,
         item.book.author,
         item.book.publisher,
@@ -63,12 +65,11 @@ const makeBook = async () => {
         item.book.isbn,
         item.book.seriesInfo?.seriesName,
         item.book.categoryName,
-        item.like,
-        item.have,
-        item.book.id,
-        item.id,
-        item.member.id,
         item.book.link,
+        item.member,
+        item.book.id,
+        item.bookshelfId,
+        item.shelfId,
       )
       bookCache.set(item.book.isbn, newBook)
       newBooks.push(newBook)

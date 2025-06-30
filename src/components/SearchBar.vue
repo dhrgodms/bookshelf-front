@@ -15,9 +15,6 @@
       </template>
     </q-input>
   </div>
-
-  <!-- 페이지네이션 -->
-  <PaginationBar :page="page" @update:page="handlePage" />
 </template>
 
 <script setup>
