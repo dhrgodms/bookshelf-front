@@ -228,7 +228,7 @@ async function addLibrary() {
 
 const selectedBookshelves = computed(() => {
   // 선택된 책장 ID에 해당하는 책장만 필터링해서 반환
-  return props.myShelves.filter((shelf) => selectedCategories.value.includes(shelf.id))
+  return props.myShelves?.filter((shelf) => selectedCategories.value.includes(shelf.id))
 })
 
 // 새 선반 추가

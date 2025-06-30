@@ -175,12 +175,12 @@ async function fetchMyShelves() {
         headers: { access: access },
       },
     )
-    console.log(response.data.content)
+    console.log(response.data)
 
-    myShelves.value = response.data?.content
+    myShelves.value = response.data
 
     // 책장이 없을 경우 안내 메시지 표시
-    if (myShelves.value.length === 0) {
+    if (myShelves.value?.length === 0) {
       $q.notify({
         color: 'warning',
         message: '책장이 없습니다. 새 책장을 만들어보세요!',

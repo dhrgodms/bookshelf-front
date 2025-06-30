@@ -40,7 +40,7 @@ async function getShelf() {
   try {
     const access = localStorage.getItem('access')
     const response = await api.post(
-      `${process.env.SPRING_SERVER}/api/v1/membershelves/own`,
+      `${process.env.SPRING_SERVER}/api/v1/bookshelves/member`,
       { username: 'userA' },
       {
         params: { page: page.value },
@@ -49,7 +49,7 @@ async function getShelf() {
     )
     shelfShelves.value = response.data || []
     console.log(response.data)
-    searchResults.value = shelfShelves.value.content
+    searchResults.value = shelfShelves.value
     hasSearched.value = true
     // emit('search-complete', searchResults.value)
   } catch (error) {

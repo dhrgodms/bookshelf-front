@@ -3,7 +3,7 @@
     <!-- 책장 상세 정보 헤더 -->
     <q-card class="shelf-header q-pa-md q-my-md" flat bordered>
       <div class="text-h4 text-weight-bold q-mb-sm">
-        {{ shelfInfo.shelfName || '책장 이름' }}
+        {{ shelfInfo[0]?.bookshelf.bookshelfName || '책장 이름' }}
       </div>
       <div class="text-subtitle1 text-grey-8 q-mb-md">
         {{ shelfInfo.shelfMemo || '책장 설명' }}
@@ -18,7 +18,7 @@
           {{ shelfInfo.isPublic ? '공개' : '비공개' }}
         </q-badge>
         <q-badge color="secondary" outline class="q-pa-sm rounded-borders">
-          <q-icon name="book" class="q-mr-xs" /> {{ shelfInfo.shelfBooks?.length || 0 }}권
+          <q-icon name="book" class="q-mr-xs" /> {{ shelfInfo.length || 0 }}권
         </q-badge>
         <q-badge color="accent" outline class="q-pa-sm rounded-borders">
           <q-icon name="favorite" class="q-mr-xs" /> {{ shelfInfo.memberShelves?.length || 0 }}
@@ -52,14 +52,10 @@
 
       <div v-else>
         <q-list bordered separator class="rounded-borders">
-          <q-item
-            v-for="shelfBook in searchResults"
-            :key="shelfBook.shelfBookId"
-            class="q-py-md book-item"
-          >
+          <q-item v-for="shelfBook in searchResults" :key="shelfBook.id" class="q-py-md book-item">
             <q-item-section avatar>
               <q-img
-                :src="shelfBook.bookDto.cover || 'https://placehold.co/80x120?text=No+Cover'"
+                :src="shelfBook.cover || 'https://placehold.co/80x120?text=No+Cover'"
                 width="80px"
                 height="120px"
                 fit="contain"
@@ -69,16 +65,14 @@
 
             <q-item-section>
               <q-item-label class="text-weight-bold text-body1 text-grey-9">{{
-                shelfBook.bookDto.title
+                shelfBook.title
               }}</q-item-label>
+              <q-item-label caption class="text-grey-7">저자: {{ shelfBook.author }}</q-item-label>
               <q-item-label caption class="text-grey-7"
-                >저자: {{ shelfBook.bookDto.author }}</q-item-label
+                >출판사: {{ shelfBook.publisher }}</q-item-label
               >
-              <q-item-label caption class="text-grey-7"
-                >출판사: {{ shelfBook.bookDto.publisher }}</q-item-label
-              >
-              <q-item-label caption v-if="shelfBook.bookDto.isbn" class="text-grey-7"
-                >ISBN: {{ shelfBook.bookDto.isbn }}</q-item-label
+              <q-item-label caption v-if="shelfBook.isbn" class="text-grey-7"
+                >ISBN: {{ shelfBook.isbn }}</q-item-label
               >
             </q-item-section>
 
@@ -237,15 +231,15 @@ async function getShelf() {
     // 책장 정보 가져오기 (예: 이름, 설명, 공개 여부, 좋아요 수)
     // 실제 API 응답 구조에 따라 shelfInfo.value에 할당
     const shelfResponse = await api.get(
-      `${process.env.SPRING_SERVER}/api/v1/shelfbooks/shelf/${shelfId.value}`,
+      `${process.env.SPRING_SERVER}/api/v1/bookshelves/${shelfId.value}`,
       {
         headers: { access: access },
       },
     )
 
-    console.log(shelfResponse.data)
-    shelfInfo.value = shelfResponse.data || {}
-    searchResults.value = shelfResponse.data?.shelfBooks || [] // API 응답 구조에 맞게 수정
+    shelfInfo.value = shelfResponse?.data || {}
+    searchResults.value = shelfResponse.data.map((item) => item?.book) || [] // API 응답 구조에 맞게 수정
+    console.log(searchResults.value)
     hasSearched.value = true
   } catch (error) {
     console.error('책장 정보 가져오기 중 오류 발생:', error)
@@ -316,21 +310,11 @@ async function addBookToShelf(book) {
     const access = localStorage.getItem('access')
     // 실제 책장-책 추가 API 엔드포인트와 요청 바디에 맞게 수정
     await api.post(
-      `${process.env.SPRING_SERVER}/api/v1/shelfbooks`,
+      `${process.env.SPRING_SERVER}/api/v1/memberbooksnew`,
       {
-        bookDto: {
-          id: book.id,
-          title: book.title,
-          author: book.author,
-          publisher: book.publisher,
-          isbn: book.isbn,
-          seriesName: book.seriesName,
-          cover: book.cover,
-          categoryName: book.categoryName,
-          link: book.link,
-          pubdate: book.pubdate,
-        },
-        shelfId: shelfId.value,
+        username: 'userA',
+        bookDto: book,
+        location: ['1-1'], // TODO 여기해야됨 연결
       },
       {
         headers: { access: access },

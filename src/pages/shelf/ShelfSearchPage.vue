@@ -98,7 +98,7 @@ async function getShelf() {
   try {
     const access = localStorage.getItem('access')
     const response = await api.post(
-      `${process.env.SPRING_SERVER}/api/v1/membershelves/own`,
+      `${process.env.SPRING_SERVER}/api/v1/bookshelves/member`,
       { username: 'userA' },
       {
         params: { page: page.value },

@@ -48,7 +48,6 @@
           <!-- 여기에 책 검색 결과 컴포넌트 -->
           <ResultList :results="bookResults" :isLoading="isLoadingBooks" />
         </div>
-        searchKeyword = {{ searchKeyword }}
       </div>
       <div v-else class="result-section q-mb-xl">
         <div class="section-header">

@@ -5,8 +5,69 @@
   >
     <div v-if="props.results.length > 0 && !state.isLoading" class="row justify-center">
       <q-list class="row" style="gap: 1em; justify-content: flex-start">
-        <q-card v-for="item in props.results" :key="item.id">
-          <BookshelfCard :results="props.results" :bookshelf="item" />
+        <q-card
+          v-for="item in props.results"
+          :key="item.id"
+          class="folder-card col-12 col-sm-6 col-md-3"
+          flat
+          @click="() => goToShelfDetail(item)"
+          style="min-width: 11em; max-width: 13.5em; width: 20%; cursor: pointer"
+        >
+          <!-- 폴더 상단 부분 -->
+          <div class="folder-tab"></div>
+
+          <!-- 폴더 메인 부분 -->
+          <div class="folder-main">
+            <div class="flex column" style="min-height: 3em; position: relative">
+              <div class="flex" style="min-height: 5em; align-items: flex-start">
+                <div class="col-1"></div>
+                <div class="col-7 column">
+                  <q-card-section style="padding: 0; overflow: hidden">
+                    <div class="text-subtitle2 col-5 folder-title">
+                      {{ editLength(item.bookshelfName, 20) }}
+                    </div>
+                  </q-card-section>
+                  <div class="col-6 column">
+                    <q-card-section style="padding: 0; overflow: hidden">
+                      <div
+                        class="text-caption col"
+                        style="font-size: 0.75em; line-height: 1.5em; min-height: 1.5em"
+                      >
+                        {{ editLength(item.bookshelfMemo, 20) }}
+                      </div>
+                      <div
+                        class="text-caption text-grey col"
+                        style="font-size: 0.7em; line-height: 1.5em"
+                      >
+                        {{ editDate(item.createdDate, 10) }}
+                      </div>
+                    </q-card-section>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 버튼 영역은 클릭 이벤트 전파 방지 -->
+              <div @click.stop>
+                <q-card-actions class="flex row folder-actions">
+                  <q-btn
+                    class="motion-btn"
+                    flat
+                    padding="none"
+                    :color="item.like ? 'accent' : 'grey'"
+                    :icon="item.like ? 'favorite' : 'favorite_border'"
+                    @click="() => onLikeClick(item)"
+                    size="1.2em"
+                  />
+                  <q-toggle
+                    v-model="item.have"
+                    :icon="item.have ? 'visibility' : 'visibility_off'"
+                    size="3.4em"
+                    @click="() => onOwnClick(item)"
+                  />
+                </q-card-actions>
+              </div>
+            </div>
+          </div>
         </q-card>
       </q-list>
     </div>
@@ -22,18 +83,28 @@
 
 <script setup>
 import ResultSkeleton from './skeleton/ResultSkeleton.vue'
+import { editDate, editLength } from './Utils'
 import { nextTick, onMounted, reactive, watch } from 'vue'
 import ShelfResultNone from './BookResultNone.vue'
+import { api } from 'src/boot/axios'
 import MemberShelfDto from './dto/MemberShelfDto'
-import BookshelfCard from './BookshelfCard.vue'
+import { useRouter } from 'vue-router'
 
 const shelfCache = new Map()
+const router = useRouter()
 
 const state = reactive({
   shelves: [],
   loading: true,
   error: null,
 })
+
+// 책장 상세로 이동하는 메서드 추가
+function goToShelfDetail(item) {
+  const shelfId = item.shelfId
+  // 라우터를 사용하여 상세 페이지로 이동
+  router.push(`/shelf/${shelfId}`)
+}
 
 const makeShelf = async () => {
   const newShelves = []
@@ -52,6 +123,21 @@ const makeShelf = async () => {
   state.shelves = newShelves
   state.loading = false
   return state.shelves
+}
+
+async function onLikeClick(item) {
+  await api.post(
+    `${process.env.SPRING_SERVER}/api/memberbook/like-change`,
+    {
+      memberbookId: item.memberbookId,
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    },
+  )
+  item.like = !item.like
 }
 
 const props = defineProps({
