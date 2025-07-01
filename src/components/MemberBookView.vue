@@ -1,6 +1,9 @@
 <template>
-  <div class="card-container row customframe" style="justify-content: center">
-    <div v-if="state.books.length > 0" class="row justify-center">
+  <div
+    class="card-container row q-col-gutter-md q-pa-md customframe"
+    style="justify-content: center"
+  >
+    <div v-if="state.books.length > 0 && !state.isLoading" class="row justify-center">
       <q-list class="row" style="gap: 0.4em; justify-content: center">
         <q-card
           v-for="book in state.books"
@@ -8,65 +11,69 @@
           class="my-card col-12 col-sm-6 col-md-3"
           flat
           bordered
-          style="min-width: 11em; max-width: 13.5em; width: 12em"
+          style="min-width: 11em; max-width: 13.5em; width: 25%"
         >
           <BookCard :book="book" @like="onLikeClick" @have="onOwnClick" />
         </q-card>
       </q-list>
     </div>
-    <div v-else-if="state.loading">
+    <div v-else-if="state.books.length == 0">
+      <ShelfResultNone />
+    </div>
+    <div v-else-if="state.isLoading">
       <ResultSkeleton />
     </div>
-    <div v-else-if="props.hasSearched && state.books.length == 0">
-      <ResultNone />
-    </div>
-    <div v-else-if="!props.hasSearched"><BeforeSearch /></div>
+    <div v-else></div>
   </div>
 </template>
 
+<!-- TODO memberbook에 알맞게 수정하기 -->
 <script setup>
 import ResultSkeleton from './skeleton/ResultSkeleton.vue'
-import BeforeSearch from './BeforeSearch.vue'
-import Book from './dto/Book'
-import * as bookApi from '../boot/bookApi'
+import MemberBookNew from './dto/MemberBookNew'
 import { nextTick, onMounted, reactive, watch } from 'vue'
-import ResultNone from './ResultNone.vue'
-import { useRoute } from 'vue-router'
+import ShelfResultNone from './BookResultNone.vue'
+// import { api } from 'src/boot/axios'
 import BookCard from './BookCard.vue'
+import { api } from 'src/boot/axios'
 
 const bookCache = new Map()
-const route = useRoute()
 
 const state = reactive({
   books: [],
-  loading: false,
+  loading: true,
   error: null,
 })
 
 const makeBook = async () => {
-  state.loading = true
   const newBooks = []
 
   for (const item of props.results) {
-    // const cached = bookCache.get(item.isbn13)
+    console.log(item)
+    const cached = bookCache.get(item.book.isbn)
 
-    // if (cached) {
-    //   newBooks.push(cached)
-    // } else {
-    const newBook = new Book(
-      item.title,
-      item.author,
-      item.publisher,
-      item.cover,
-      item.pubdate,
-      item.isbn,
-      item.seriesName,
-      item.categoryName,
-      item.link,
-    )
-    bookCache.set(item.isbn13, newBook)
-    newBooks.push(newBook)
-    // }
+    if (cached) {
+      newBooks.push(cached)
+    } else {
+      const newBook = new MemberBookNew(
+        item.id,
+        item.book.title,
+        item.book.author,
+        item.book.publisher,
+        item.book.cover,
+        item.book.pubdate,
+        item.book.isbn,
+        item.book.seriesInfo?.seriesName,
+        item.book.categoryName,
+        item.book.link,
+        item.member,
+        item.book.id,
+        item.bookshelfId,
+        item.shelfId,
+      )
+      bookCache.set(item.book.isbn, newBook)
+      newBooks.push(newBook)
+    }
   }
   state.books = newBooks
   state.loading = false
@@ -74,36 +81,30 @@ const makeBook = async () => {
 }
 
 async function onOwnClick(item) {
-  await bookApi.own(
+  await api.post(
+    `${process.env.SPRING_SERVER}/api/memberbook/own-change`,
     {
-      title: item.title,
-      author: item.author,
-      publisher: item.publisher,
-      cover: item.cover,
-      pubdate: item.pubdate,
-      isbn: item.isbn,
-      seriesName: item.seriesName,
-      categoryName: item.categoryName,
-      link: item.link,
+      memberbookId: item.memberbookId,
     },
-    'userA',
+    {
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    },
   )
 }
 
 async function onLikeClick(item) {
-  await bookApi.like(
+  await api.post(
+    `${process.env.SPRING_SERVER}/api/memberbook/like-change`,
     {
-      title: item.title,
-      author: item.author,
-      publisher: item.publisher,
-      cover: item.cover,
-      pubdate: item.pubdate,
-      isbn: item.isbn,
-      seriesName: item.seriesName,
-      categoryName: item.categoryName,
-      link: item.link,
+      memberbookId: item.memberbookId,
     },
-    'userA',
+    {
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    },
   )
   item.like = !item.like
 }
@@ -117,26 +118,16 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-})
-
-watch(
-  () => props.results,
-  (newResults) => {
-    state.loading = true
-    if (newResults && newResults.length > 0) {
-      // console.log(newResults)
-      makeBook()
-    } else {
-      state.books = []
-      state.loading = false
-    }
+  isLoading: {
+    type: Boolean,
+    default: true,
   },
-)
+})
 
 onMounted(async () => {
   await nextTick()
-  if (!route.query.query) state.loading = false
-  // else state.loading = true
+  console.log(props.results)
+  console.log(state.books)
 
   const waitUntilReady = () => {
     if (props.results && props.results.length > 0) {
@@ -148,6 +139,16 @@ onMounted(async () => {
 
   waitUntilReady()
 })
+
+watch(
+  () => props.results,
+  (newResults) => {
+    console.log(props.results)
+    if (newResults && newResults.length > 0) {
+      makeBook()
+    }
+  },
+)
 </script>
 
 <style lang="scss" scoped>
@@ -202,11 +203,5 @@ onMounted(async () => {
 .left-badge {
   right: 0px;
   left: 5px;
-}
-
-.customframe {
-  max-width: 800px;
-  min-width: 380px;
-  width: 100%;
 }
 </style>

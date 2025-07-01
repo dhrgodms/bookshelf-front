@@ -75,7 +75,7 @@ export default defineConfig((/* ctx */) => {
       // https: true,
       open: true, // opens browser window automatically
       proxy: {
-        '/api': 'http://localhost:8080',
+        '/api': 'https://bookshelf-server-production.up.railway.app',
       },
     },
 
@@ -94,7 +94,7 @@ export default defineConfig((/* ctx */) => {
       // directives: [],
 
       // Quasar plugins
-      plugins: ['Notify'],
+      plugins: ['Notify', 'Dialog'],
     },
 
     // animations: 'all', // --- includes all animations

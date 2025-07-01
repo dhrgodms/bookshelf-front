@@ -1,9 +1,10 @@
 import { api } from './axios'
 
-export async function like(book) {
-  return await api.post(`/api/memberbook/like`, book)
-}
-
-export async function own(book) {
-  return await api.post(`/api/memberbook/own`, book)
+export async function own(book, user, bookshelfId, shelfId) {
+  return await api.post(`/api/v1/memberbooksnew`, {
+    bookDto: book,
+    username: user,
+    bookshelfId: bookshelfId,
+    shelfId: shelfId,
+  })
 }
