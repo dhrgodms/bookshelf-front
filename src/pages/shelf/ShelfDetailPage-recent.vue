@@ -3,10 +3,10 @@
     <!-- 책장 상세 정보 헤더 -->
     <q-card class="shelf-header q-pa-md q-my-md" flat bordered>
       <div class="text-h4 text-weight-bold q-mb-sm">
-        {{ shelfInfo?.bookshelf?.bookshelfName || '책장 이름' }}
+        {{ shelfInfo[0]?.bookshelf.bookshelfName || '책장 이름' }}
       </div>
       <div class="text-subtitle1 text-grey-8 q-mb-md">
-        {{ shelfInfo?.bookshelf?.notes || '책장 설명' }}
+        {{ shelfInfo[0]?.bookshelf.notes || '책장 설명' }}
       </div>
       <div class="row items-center q-gutter-sm">
         <q-badge
@@ -18,10 +18,10 @@
           {{ shelfInfo.isPublic ? '공개' : '비공개' }}
         </q-badge>
         <q-badge color="secondary" outline class="q-pa-sm rounded-borders">
-          <q-icon name="book" class="q-mr-xs" /> {{ shelfInfo?.memberbooks?.length || 0 }}권
+          <q-icon name="book" class="q-mr-xs" /> {{ shelfInfo.length || 0 }}권
         </q-badge>
         <q-badge color="accent" outline class="q-pa-sm rounded-borders">
-          <q-icon name="favorite" class="q-mr-xs" /> {{ shelfInfo?.memberShelves?.length || 0 }}
+          <q-icon name="favorite" class="q-mr-xs" /> {{ shelfInfo.memberShelves?.length || 0 }}
         </q-badge>
       </div>
     </q-card>
@@ -38,6 +38,8 @@
 
     <!-- 책 목록 -->
     <q-card class="book-list-card q-pa-md" flat bordered>
+      <div class="text-subtitle1 q-mb-md text-grey-9" style="font-weight: bold">책 목록</div>
+
       <div v-if="isLoading" class="flex flex-center q-pa-xl">
         <q-spinner color="primary" size="3em" :thickness="5" />
       </div>
@@ -49,43 +51,42 @@
       </div>
 
       <div v-else>
-        <!-- 선반별로 그룹화 -->
-        <div v-for="(books, shelfName) in groupedBooks" :key="shelfName" class="q-mb-lg">
-          <div class="text-subtitle1 q-mb-md text-grey-9" style="font-weight: bold">
-            {{ shelfName }}
-          </div>
+        <q-list bordered separator class="rounded-borders">
+          <q-item v-for="shelfBook in searchResults" :key="shelfBook.id" class="q-py-md book-item">
+            <q-item-section avatar>
+              <q-img
+                :src="shelfBook.cover || 'https://placehold.co/80x120?text=No+Cover'"
+                width="80px"
+                height="120px"
+                fit="contain"
+                class="rounded-borders shadow-1"
+              />
+            </q-item-section>
 
-          <!-- 책 그리드 레이아웃으로 변경 (더 작은 사이즈) -->
-          <div class="row q-col-gutter-sm">
-            <div v-for="item in books" :key="item.book.id" class="q-mb-sm q-mx-xs">
-              <div class="book-item">
-                <q-img
-                  :src="item.book.cover || 'https://placehold.co/120x180?text=No+Cover'"
-                  width="100%"
-                  height="120px"
-                  fit="contain"
-                  class="book-cover shadow-1"
-                />
+            <q-item-section>
+              <q-item-label class="text-weight-bold text-body1 text-grey-9">{{
+                shelfBook.title
+              }}</q-item-label>
+              <q-item-label caption class="text-grey-7">저자: {{ shelfBook.author }}</q-item-label>
+              <q-item-label caption class="text-grey-7"
+                >출판사: {{ shelfBook.publisher }}</q-item-label
+              >
+              <q-item-label caption v-if="shelfBook.isbn" class="text-grey-7"
+                >ISBN: {{ shelfBook.isbn }}</q-item-label
+              >
+            </q-item-section>
 
-                <div class="book-info q-pt-xs">
-                  <div class="book-title ellipsis">{{ item.book.title }}</div>
-                  <div class="book-author ellipsis">{{ item.book.author }}</div>
-                </div>
-
-                <q-btn
-                  class="delete-btn"
-                  color="negative"
-                  flat
-                  round
-                  dense
-                  size="xs"
-                  icon="delete"
-                  @click="removeBookFromShelf(item)"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+            <q-item-section side>
+              <q-btn
+                color="negative"
+                flat
+                round
+                icon="delete"
+                @click="removeBookFromShelf(shelfBook.shelfBookId)"
+              />
+            </q-item-section>
+          </q-item>
+        </q-list>
       </div>
     </q-card>
 
@@ -184,7 +185,7 @@
 <script setup>
 import { api } from 'src/boot/axios'
 import PaginationBar from 'src/components/PaginationBar.vue'
-import { computed, onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
 
@@ -193,6 +194,7 @@ const $q = useQuasar()
 const shelfId = ref(route.params.id)
 
 // 책장 정보
+console.log('shelfId = ' + shelfId.value)
 const shelfInfo = ref({})
 const searchResults = ref([])
 const hasSearched = ref(false)
@@ -217,35 +219,6 @@ watch(
     getShelf()
   },
 )
-
-const emit = defineEmits(['removeBook'])
-
-// const removeBookFromShelf = (shelfBookId) => {
-//   emit('removeBook', shelfBookId)
-// }
-
-// 선반별로 책 그룹화하는 computed 속성
-const groupedBooks = computed(() => {
-  const grouped = {}
-
-  shelfInfo.value.memberbooks.forEach((item) => {
-    // 여기서 book 객체에 shelfName이나 선반 정보가 있어야 함
-    // 만약 없다면 적절한 필드로 대체해야 함
-    console.log(item)
-    const shelfName = item?.shelfNew?.shelfCustomName
-      ? item.shelfNew.shelfCustomName
-      : `${item.shelfNew.shelfPosition}번째 선반`
-
-    if (!grouped[shelfName]) {
-      grouped[shelfName] = []
-    }
-
-    grouped[shelfName].push(item)
-  })
-
-  return grouped
-})
-
 async function getShelf() {
   // 페이지 업데이트 (쿼리 파라미터로 페이지 정보 추가)
   // router.push(`/shelf/${shelfId.value}`) // 이 부분은 실제 라우팅 로직에 따라 조절
@@ -263,8 +236,9 @@ async function getShelf() {
         headers: { access: access },
       },
     )
+
     shelfInfo.value = shelfResponse?.data || {}
-    searchResults.value = shelfResponse.data.memberbooks.map((item) => item?.book) || [] // API 응답 구조에 맞게 수정
+    searchResults.value = shelfResponse.data.map((item) => item?.book) || [] // API 응답 구조에 맞게 수정
     console.log(searchResults.value)
     hasSearched.value = true
   } catch (error) {
@@ -369,8 +343,7 @@ async function addBookToShelf(book) {
 }
 
 // 책장에서 책 제거
-async function removeBookFromShelf(memberbook) {
-  console.log(memberbook)
+async function removeBookFromShelf(shelfBookId) {
   try {
     $q.dialog({
       title: '책 제거',
@@ -381,7 +354,7 @@ async function removeBookFromShelf(memberbook) {
     }).onOk(async () => {
       const access = localStorage.getItem('access')
       // 실제 책장-책 제거 API 엔드포인트에 맞게 수정
-      await api.delete(`${process.env.SPRING_SERVER}/api/v1/memberbooksnew/${memberbook.id}`, {
+      await api.delete(`${process.env.SPRING_SERVER}/api/v1/shelfbooks/${shelfBookId}`, {
         headers: { access: access },
       })
 
@@ -391,7 +364,6 @@ async function removeBookFromShelf(memberbook) {
         icon: 'check_circle',
       })
 
-      emit('removeBook', memberbook)
       // 책장 목록 새로고침
       getShelf()
     })
@@ -449,59 +421,27 @@ const handlePage = (newPage) => {
     margin-bottom: 20px;
   }
 }
-.book-item {
-  position: relative;
-  transition: transform 0.2s;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  width: 6em;
-  gap: 0.7em;
+
+.book-item,
+.book-search-item {
+  transition:
+    background-color 0.2s ease-in-out,
+    transform 0.2s ease-in-out; // 호버 효과
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f0f0f0; // 호버 시 배경색 변경
+    transform: translateY(-2px); // 살짝 위로 뜨는 효과
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); // 은은한 그림자 추가
+  }
+
+  .q-img {
+    border: 1px solid #eee; // 이미지 테두리
+  }
 }
 
-.book-item:hover {
-  transform: translateY(-3px);
-}
-
-.book-cover {
-  border-radius: 4px;
-  width: 100%;
-  max-width: 100px;
-}
-
-.book-info {
-  width: 100%;
-  text-align: center;
-  padding: 0 2px;
-}
-
-.book-title {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: #424242;
-}
-
-.book-author {
-  font-size: 0.7rem;
-  color: #757575;
-}
-
-.ellipsis {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100px;
-}
-
-.delete-btn {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.book-item:hover .delete-btn {
-  opacity: 1;
+.book-search-dialog {
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15); // 다이얼로그 그림자 강조
 }
 </style>

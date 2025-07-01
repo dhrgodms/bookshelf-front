@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="card-container row q-col-gutter-md q-pa-md customframe"
-    style="justify-content: center"
-  >
+  <div class="card-container row q-col-gutter-md q-pa-md" style="justify-content: center">
     <div v-if="props.results.length > 0 && !state.isLoading" class="row justify-center">
       <q-list class="row" style="gap: 1em; justify-content: flex-start">
         <q-card v-for="item in props.results" :key="item.id">
@@ -16,7 +13,6 @@
     <div v-else-if="state.isLoading">
       <ResultSkeleton />
     </div>
-    <div v-else></div>
   </div>
 </template>
 
@@ -155,6 +151,7 @@ watch(
   position: relative;
   transition: all 0.3s ease;
   border: none !important;
+  height: auto;
 }
 
 .folder-card:hover {

@@ -47,9 +47,8 @@ async function getShelf() {
         headers: { access: access },
       },
     )
-    shelfShelves.value = response.data || []
     console.log(response.data)
-    searchResults.value = shelfShelves.value
+    searchResults.value = response.data || []
     hasSearched.value = true
     // emit('search-complete', searchResults.value)
   } catch (error) {

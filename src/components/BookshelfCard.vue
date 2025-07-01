@@ -50,6 +50,10 @@ import { editDate } from './Utils'
 const router = useRouter()
 const props = defineProps({
   bookshelf: {
+    type: Object,
+    default: () => {},
+  },
+  results: {
     type: Array,
     default: () => [],
   },
