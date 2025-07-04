@@ -1,40 +1,40 @@
 <template>
-  <q-page class="flex column" style="align-items: center">
-    <div class="q-pa-md" style="max-width: 400px">
+  <q-page class="flex flex-center q-pa-md">
+    <q-card class="q-pa-lg shadow-2" style="width: 100%; max-width: 420px">
+      <q-card-section class="q-mb-md text-h6 text-center"> 회원가입 </q-card-section>
+
       <q-form @submit="onSubmitJoin" @reset="onResetJoin" class="q-gutter-md">
-        <div class="row" style="align-items: center; justify-content: space-between; gap: 0.6em">
+        <!-- ID 입력 및 중복확인 -->
+        <div class="row items-center justify-between">
           <q-input
+            class="col-grow q-mr-sm"
             filled
             v-model="loginId"
             label="Id *"
             :hint="
-              idCheck
-                ? '사용 가능한 아이디 입니다.'
-                : idCheck == false
-                  ? '중복된 아이디 입니다.'
+              idCheck === true
+                ? '사용 가능한 아이디입니다.'
+                : idCheck === false
+                  ? '중복된 아이디입니다.'
                   : '아이디를 입력해주세요.'
             "
             lazy-rules
-            :rules="[(val) => (val && val.length > 0) || 'Please type your id']"
+            :rules="[(val) => !!val || 'Please type your id']"
             :disable="idCheck"
             outlined
             :color="idCheck ? 'green' : 'red'"
           />
-          <q-btn
-            label="중복확인"
-            color="primary"
-            style="height: fit-content; width: fit-content; font-size: 0.8em"
-            padding="xs"
-            @click="onCheckId"
-          />
+          <q-btn label="중복확인" color="primary" class="q-mt-xs" size="sm" @click="onCheckId" />
         </div>
+
+        <!-- 닉네임, 이메일, 비밀번호 -->
         <q-input
           filled
           v-model="name"
           label="Nickname *"
           hint="닉네임을 입력하세요."
           lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Please type your nickname']"
+          :rules="[(val) => !!val || 'Please type your nickname']"
         />
         <q-input
           filled
@@ -42,27 +42,41 @@
           label="Email *"
           hint="이메일을 입력하세요."
           lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Please type your email']"
+          :rules="[(val) => !!val || 'Please type your email']"
         />
-
         <q-input
           filled
           type="password"
           v-model="password"
           label="Password *"
-          hint="비밀번호를 입력하세요(14자 이하)."
+          hint="비밀번호를 입력하세요 (14자 이하)."
           lazy-rules
-          :rules="[(val) => (val !== null && val !== '') || 'Please type your password']"
+          :rules="[(val) => !!val || 'Please type your password']"
         />
 
+        <!-- 약관 동의 -->
         <q-toggle v-model="accept" label="I accept the license and terms" />
 
-        <div>
+        <!-- Submit / Reset -->
+        <div class="row justify-between q-mt-sm">
           <q-btn label="Submit" type="submit" color="primary" />
-          <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
+          <q-btn label="Reset" type="reset" color="primary" flat />
         </div>
       </q-form>
-    </div>
+
+      <!-- 소셜 로그인 영역 -->
+      <q-separator spaced="lg" />
+      <div class="column items-center q-gutter-sm">
+        <q-btn
+          label="Google로 가입하기"
+          color="white"
+          text-color="black"
+          icon="img:https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+          outline
+          @click="onGoogleLogin"
+        />
+      </div>
+    </q-card>
   </q-page>
 </template>
 
