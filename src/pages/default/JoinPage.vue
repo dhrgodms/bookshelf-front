@@ -4,29 +4,6 @@
       <q-card-section class="q-mb-md text-h6 text-center"> 회원가입 </q-card-section>
 
       <q-form @submit="onSubmitJoin" @reset="onResetJoin" class="q-gutter-md">
-        <!-- ID 입력 및 중복확인 -->
-        <div class="row items-center justify-between">
-          <q-input
-            class="col-grow q-mr-sm"
-            filled
-            v-model="loginId"
-            label="Id *"
-            :hint="
-              idCheck === true
-                ? '사용 가능한 아이디입니다.'
-                : idCheck === false
-                  ? '중복된 아이디입니다.'
-                  : '아이디를 입력해주세요.'
-            "
-            lazy-rules
-            :rules="[(val) => !!val || 'Please type your id']"
-            :disable="idCheck"
-            outlined
-            :color="idCheck ? 'green' : 'red'"
-          />
-          <q-btn label="중복확인" color="primary" class="q-mt-xs" size="sm" @click="onCheckId" />
-        </div>
-
         <!-- 닉네임, 이메일, 비밀번호 -->
         <q-input
           filled
@@ -90,8 +67,6 @@ const $q = useQuasar()
 const params = new URLSearchParams()
 const router = useRouter()
 
-const loginId = ref('123')
-const idCheck = ref(null)
 const name = ref('123')
 const email = ref('123@g.com')
 const password = ref('123')
@@ -99,11 +74,11 @@ const accept = ref(true)
 const loginSuccess = ref(null)
 
 async function handleForm() {
-  params.append('loginId', loginId.value)
-  params.append('name', name.value)
-  params.append('email', email.value)
-  params.append('password', password.value)
-  const response = await axios.post(`${process.env.SPRING_SERVER}/join`, params)
+  const response = await axios.post(`${process.env.SPRING_SERVER}/join`, {
+    name: name.value,
+    email: email.value,
+    password: password.value,
+  })
   if (`${response.data}`.startsWith('[ERROR]')) {
     loginSuccess.value = false
   } else {
@@ -111,20 +86,8 @@ async function handleForm() {
   }
 }
 
-async function onCheckId() {
-  const response = await axios.get(`${process.env.SPRING_SERVER}/join/check-id/${loginId.value}`)
-  idCheck.value = response.data
-}
-
 async function onSubmitJoin() {
-  if (!idCheck.value) {
-    $q.notify({
-      color: 'red-9',
-      textColor: 'white',
-      icon: 'warning',
-      message: '아이디 중복 확인을 해야 합니다.',
-    })
-  } else if (accept.value !== true) {
+  if (accept.value !== true) {
     onResetJoin()
     $q.notify({
       color: 'red-9',
@@ -157,7 +120,6 @@ async function onSubmitJoin() {
 }
 
 function onResetJoin() {
-  loginId.value = null
   name.value = null
   email.value = null
   password.value = null
@@ -166,7 +128,6 @@ function onResetJoin() {
   onResetParams()
 }
 function onResetParams() {
-  params.delete('loginId', null)
   params.delete('name', null)
   params.delete('password', null)
   params.delete('email', null)
