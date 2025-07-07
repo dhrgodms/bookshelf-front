@@ -89,14 +89,6 @@
       </div>
     </q-card>
 
-    <!-- 페이지네이션 -->
-    <PaginationBar
-      v-if="searchResults.length > 0"
-      :page="page"
-      @update:page="handlePage"
-      class="q-my-md"
-    />
-
     <!-- 책 검색 다이얼로그 -->
     <q-dialog
       v-model="searchDialogOpen"
@@ -183,7 +175,6 @@
 
 <script setup>
 import { api } from 'src/boot/axios'
-import PaginationBar from 'src/components/PaginationBar.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
@@ -197,7 +188,6 @@ const shelfInfo = ref({})
 const searchResults = ref([])
 const hasSearched = ref(false)
 const isLoading = ref(true)
-const page = ref(1)
 
 // 책 검색 관련 상태
 const searchDialogOpen = ref(false)
@@ -333,19 +323,11 @@ async function searchBooks() {
 // 책장에 책 추가
 async function addBookToShelf(book) {
   try {
-    const access = localStorage.getItem('access')
     // 실제 책장-책 추가 API 엔드포인트와 요청 바디에 맞게 수정
-    await api.post(
-      `${process.env.SPRING_SERVER}/api/v1/memberbooksnew`,
-      {
-        username: 'userA',
-        bookDto: book,
-        location: ['1-1'], // TODO 여기해야됨 연결
-      },
-      {
-        headers: { access: access },
-      },
-    )
+    await api.post(`${process.env.SPRING_SERVER}/api/v1/memberbooksnew`, {
+      bookDto: book,
+      location: ['1-1'], // TODO 여기해야됨 연결
+    })
 
     $q.notify({
       color: 'positive',
@@ -403,11 +385,6 @@ async function removeBookFromShelf(memberbook) {
       icon: 'error',
     })
   }
-}
-
-const handlePage = (newPage) => {
-  page.value = newPage
-  getShelf() // 페이지 변경 시 책 목록 다시 불러오기
 }
 </script>
 

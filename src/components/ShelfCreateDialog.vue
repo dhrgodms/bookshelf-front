@@ -72,21 +72,13 @@ async function createNewShelf() {
   isCreatingShelf.value = true
 
   try {
-    const access = localStorage.getItem('access')
-    const response = await api.post(
-      `${process.env.SPRING_SERVER}/api/v1/shelves`,
-      {
-        shelfDto: {
-          shelfName: newShelf.value.name,
-          shelfMemo: newShelf.value.description,
-          isPublic: newShelf.value.isPublic,
-        },
-        username: 'userA', // 실제로는 로그인한 사용자 정보를 사용해야 함
+    const response = await api.post(`${process.env.SPRING_SERVER}/api/v1/shelves`, {
+      shelfDto: {
+        shelfName: newShelf.value.name,
+        shelfMemo: newShelf.value.description,
+        isPublic: newShelf.value.isPublic,
       },
-      {
-        headers: { access: access },
-      },
-    )
+    })
 
     $q.notify({
       color: 'positive',

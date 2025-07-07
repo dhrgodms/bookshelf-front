@@ -1,14 +1,12 @@
 <template>
   <q-page class="flex column" style="align-items: center; align-content: center">
     <ShelfDetail :results="searchResults" :has-searched="hasSearched" :is-loading="isLoading" />
-    <PaginationBar :page="page" @update:page="handlePage" />
   </q-page>
 </template>
 
 <script setup>
 // import axios from 'axios'
 import { api } from 'src/boot/axios'
-import PaginationBar from 'src/components/PaginationBar.vue'
 
 import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -48,10 +46,6 @@ async function getShelf() {
   }
 
   return { searchResults, hasSearched, isLoading }
-}
-
-const handlePage = (newPage) => {
-  page.value = newPage
 }
 
 // watch(searchQuery, () => console.log(searchQuery))

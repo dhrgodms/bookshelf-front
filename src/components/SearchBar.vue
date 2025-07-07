@@ -1,86 +1,71 @@
 <template>
-  <!-- 검색 입력 필드 -->
   <div class="search-container q-mb-lg">
     <q-input
-      v-model="searchQuery"
+      v-model="internalQuery"
       outlined
       rounded
-      placeholder="책 제목, 저자, 키워드로 검색해보세요"
-      class="search-input"
+      :placeholder="placeholder"
       bg-color="white"
-      @keyup.enter="search"
+      @keyup.enter="triggerSearch"
+      class="search-input"
     >
       <template v-slot:append>
-        <q-btn round flat icon="search" @click="search" />
+        <q-btn round flat icon="search" @click="triggerSearch" />
       </template>
     </q-input>
   </div>
 </template>
 
 <script setup>
-import { api } from 'src/boot/axios'
-import { onMounted, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
 const props = defineProps({
-  page: Number,
-  isLoading: Boolean,
+  searchQuery: {
+    type: String,
+    default: '',
+  },
+  page: {
+    type: Number,
+    default: 1,
+  },
+  placeholder: {
+    type: String,
+    default: '책 제목, 저자, 키워드로 검색해보세요',
+  },
+  pushUrl: {
+    type: Boolean,
+    default: true,
+  },
 })
 
-const emit = defineEmits(['search-complete'])
+const emit = defineEmits(['update:searchQuery', 'search-complete'])
 
-const searchResults = ref([])
-const hasSearched = ref(false)
-const route = useRoute()
 const router = useRouter()
-const searchQuery = ref(route.query.query)
-const page = ref(props.page)
+const route = useRoute()
 
+const internalQuery = ref(props.searchQuery || '')
+
+// searchQuery prop이 외부에서 변경되면 내부 반영
 watch(
-  () => props.page,
-  (newPage) => {
-    console.log(newPage, '로 이동 및 검색')
-    page.value = newPage
-    search()
+  () => props.searchQuery,
+  (newVal) => {
+    internalQuery.value = newVal || ''
   },
 )
 
-watch(
-  () => route.query.query,
-  () => {
-    search()
-  },
-)
+const triggerSearch = () => {
+  const trimmed = internalQuery.value.trim()
+  if (!trimmed) return
 
-const search = async () => {
-  if (!searchQuery.value?.trim()) return
+  emit('update:searchQuery', trimmed)
+  emit('search-complete', trimmed)
 
-  // 페이지 업데이트 (쿼리 파라미터로 페이지 정보 추가)
-  router.push(`/search/book?query=${encodeURIComponent(searchQuery.value)}&page=${page.value}`)
-
-  try {
-    const access = localStorage.getItem('access')
-    const response = await api.get('/api/v1/aladin/search', {
-      params: { query: searchQuery.value, page: page.value },
-      headers: { access: access },
-    })
-    searchResults.value = response.data || []
-    hasSearched.value = true
-    emit('search-complete', searchResults.value)
-  } catch (error) {
-    console.error('검색 중 오류 발생:', error)
-    searchResults.value = []
-    hasSearched.value = true
-    emit('search-complete', [])
+  // 자동 URL push 옵션
+  if (props.pushUrl) {
+    router.push({ path: route.path, query: { ...route.query, q: trimmed, page: 1 } })
   }
-  return { searchResults, hasSearched, searchQuery, props, search }
 }
-
-onMounted(() => {
-  if (route.query.query) {
-    search()
-  }
-})
 </script>
 
 <style>

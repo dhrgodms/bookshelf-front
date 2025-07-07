@@ -11,14 +11,12 @@
       </div>
     </q-btn>
     <MemberShelfView :results="searchResults" :has-searched="hasSearched" :isLoading="isLoading" />
-    <PaginationBar :page="page" @update:page="handlePage" />
   </q-page>
 </template>
 
 <script setup>
 // import axios from 'axios'
 import { api } from 'src/boot/axios'
-import PaginationBar from 'src/components/PaginationBar.vue'
 
 import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -38,17 +36,18 @@ async function getShelf() {
   router.push(`/member/shelf?page=${page.value}`)
 
   try {
-    const access = localStorage.getItem('access')
-    const response = await api.post(
+    const response = await api.get(
       `${process.env.SPRING_SERVER}/api/v1/bookshelves/member`,
-      { username: 'userA' },
+      {},
       {
         params: { page: page.value },
-        headers: { access: access },
+        headers: {
+          'Content-Type': 'application/json',
+        },
       },
     )
-    console.log(response.data)
-    searchResults.value = response.data || []
+
+    searchResults.value = typeof response.data == 'string' ? [] : response.data
     hasSearched.value = true
     // emit('search-complete', searchResults.value)
   } catch (error) {
@@ -61,10 +60,6 @@ async function getShelf() {
   }
 
   return { searchResults, hasSearched, isLoading }
-}
-
-const handlePage = (newPage) => {
-  page.value = newPage
 }
 
 // watch(searchQuery, () => console.log(searchQuery))

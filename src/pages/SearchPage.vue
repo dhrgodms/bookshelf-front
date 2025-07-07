@@ -6,21 +6,11 @@
     </div>
 
     <!-- 검색 입력 필드 -->
-    <div class="search-container q-mb-lg">
-      <q-input
-        v-model="searchKeyword"
-        outlined
-        rounded
-        placeholder="책, 책장을 검색해보세요."
-        class="search-input"
-        bg-color="white"
-        @keyup.enter="search"
-      >
-        <template v-slot:append>
-          <q-btn round flat icon="search" @click="search" />
-        </template>
-      </q-input>
-    </div>
+    <SearchBar
+      :searchQuery="searchQuery"
+      @update:searchQuery="(q) => (searchQuery = q)"
+      @search-complete="triggerSearch"
+    />
 
     <!-- 검색 결과가 없을 때 -->
     <div v-if="hasSearched && !isLoading && !hasAnyResults" class="no-results q-my-xl">
@@ -40,7 +30,7 @@
             flat
             color="primary"
             label="더보기"
-            :to="{ path: '/search/book', query: { query: searchKeyword || '' } }"
+            :to="{ path: '/search/book', query: { q: searchQuery || '' } }"
           />
         </div>
 
@@ -101,7 +91,6 @@
         <div class="add-shelf-text">새 책장 만들기</div>
       </div>
     </q-btn>
-    <PaginationBar :page="page" @update:page="handlePage" />
   </q-page>
 </template>
 
@@ -112,6 +101,8 @@ import { useRouter, useRoute } from 'vue-router'
 import MemberShelfView from 'src/components/MemberShelfView.vue'
 import SearchedShelfView from 'src/components/SearchedShelfView.vue'
 import ResultList from 'src/components/ResultList.vue'
+import { debounce } from 'quasar'
+import SearchBar from 'src/components/SearchBar.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -123,7 +114,7 @@ const isLoading = ref(true)
 const isLoadingMyShelves = ref(true)
 // const memberId = ref(1)
 const page = ref(1)
-const searchKeyword = ref('')
+const searchQuery = ref('')
 
 // 검색어 및 상태 관리
 const isLoadingBooks = ref(false)
@@ -147,39 +138,28 @@ onMounted(() => {
   const queryKeyword = route.query.q || ''
 
   page.value = queryPage
-  searchKeyword.value = queryKeyword
+  searchQuery.value = queryKeyword
 
   // 검색어가 있으면 바로 검색 실행
-  if (searchKeyword.value) {
-    search()
+  if (queryKeyword && queryKeyword.trim()) {
+    searchQuery.value = queryKeyword
+    debouncedSearch(queryKeyword)
   }
 })
 
 // URL 파라미터 업데이트
 function updateUrlParams() {
   const query = {}
-  if (searchKeyword.value) {
-    query.q = searchKeyword.value
+  if (searchQuery.value) {
+    query.q = searchQuery.value
   }
   router.push({ path: '/search', query })
 }
 
-// 페이지 변경 처리
-// const handlePage = (newPage) => {
-//   page.value = newPage
-//   if (searchKeyword.value) {
-//     searchShelves()
-//   } else {
-//     getShelf()
-//   }
-// }
-
 // 페이지 변경 시 URL 업데이트
 watch(page, updateUrlParams)
-
-// 검색 함수
-const search = async () => {
-  if (!searchKeyword.value.trim()) return
+const debouncedSearch = debounce(async (keyword) => {
+  if (!keyword || !keyword.trim()) return
 
   hasSearched.value = true
   isLoading.value = true
@@ -187,44 +167,32 @@ const search = async () => {
   isLoadingMyShelves.value = true
 
   try {
-    const access = localStorage.getItem('access')
-    // 여기에 실제 API 호출 코드가 들어갈 예정
-    // 예: 책 검색 API 호출
-    const bookResponse = await api.get('/api/v1/aladin/search/limit', {
-      params: { query: searchKeyword.value, page: page.value, limit: 4 },
-      headers: { access: access },
-    })
-
-    bookResults.value = bookResponse.data
-    console.log(bookResults.value)
-
-    // 예: 책장 검색 API 호출
-    const shelfResponse = await api.get(`${process.env.SPRING_SERVER}/api/v1/shelves/search`, {
-      params: {
-        q: searchKeyword.value,
-        // page: page.value,
-      },
-      headers: { access: access },
-    })
-    searchResults.value = shelfResponse.data.content
-
-    // 예: 내 책장 검색 API 호출
-    const myShelvesResponse = await api.post(
-      `${process.env.SPRING_SERVER}/api/v1/membershelves/own`,
-      { username: 'userA' },
-      {
+    const [bookRes] = await Promise.all([
+      api.get('/api/v1/aladin/search/limit', {
+        params: { query: keyword, page: page.value, limit: 4 },
+      }),
+      api.get(`${process.env.SPRING_SERVER}/api/v1/shelves/search`, {
+        params: { q: keyword },
+      }),
+      api.get(`${process.env.SPRING_SERVER}/api/v1/bookshelves/member`, {
         params: { page: page.value },
-        headers: { access: access },
-      },
-    )
-    searchResultsMyShelves.value = myShelvesResponse.data.content
-  } catch (error) {
-    console.error('검색 중 오류 발생:', error)
+      }),
+    ])
+
+    bookResults.value = bookRes.data
+    // searchResults.value = shelfRes.data.content
+    // searchResultsMyShelves.value = myShelvesRes.data.content
+  } catch (err) {
+    console.error('검색 실패:', err)
   } finally {
     isLoading.value = false
     isLoadingBooks.value = false
     isLoadingMyShelves.value = false
   }
+}, 500)
+
+function triggerSearch() {
+  debouncedSearch(searchQuery.value)
 }
 </script>
 

@@ -45,15 +45,11 @@
         :isLoading="isLoadingMyShelves"
       />
     </div>
-
-    <!-- 페이지네이션 -->
-    <PaginationBar :page="page" @update:page="handlePage" />
   </q-page>
 </template>
 
 <script setup>
 import { api } from 'src/boot/axios'
-import PaginationBar from 'src/components/PaginationBar.vue'
 import { onMounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import MemberShelfView from 'src/components/MemberShelfView.vue'
@@ -96,15 +92,9 @@ async function getShelf() {
   isLoadingMyShelves.value = true
 
   try {
-    const access = localStorage.getItem('access')
-    const response = await api.post(
-      `${process.env.SPRING_SERVER}/api/v1/bookshelves/member`,
-      { username: 'userA' },
-      {
-        params: { page: page.value },
-        headers: { access: access },
-      },
-    )
+    const response = await api.post(`${process.env.SPRING_SERVER}/api/v1/bookshelves/member`, {
+      params: { page: page.value },
+    })
     shelfShelves.value = response.data || []
     searchResultsMyShelves.value = shelfShelves.value.content
     hasSearchedMyShelves.value = true
@@ -150,16 +140,6 @@ function updateUrlParams() {
     query.q = searchKeyword.value
   }
   router.push({ path: '/search/shelf', query })
-}
-
-// 페이지 변경 처리
-const handlePage = (newPage) => {
-  page.value = newPage
-  if (searchKeyword.value) {
-    searchShelves()
-  } else {
-    getShelf()
-  }
 }
 
 // 페이지 변경 시 URL 업데이트

@@ -3,70 +3,65 @@
     <!-- ✨ 책장 검색 타이틀 섹션 ✨ -->
     <div class="q-mt-xl q-mb-lg text-h4 text-weight-bold text-center shelf-list-title">책 검색</div>
     <div class="search-container q-pa-md">
-      <div class="row items-center q-gutter-md">
-        <SearchBar
-          v-model="isbnScanned"
-          :searchQuery="searchQuery || isbnScanned"
-          @update:searchQuery="handleQuery"
-          @search-complete="handleSearchResults"
-          :searchResults="searchResults"
-          :page="page"
-          :max-page="maxPage"
-          :is-loading="isLoading"
-          class="col-grow search-input"
-        />
-      </div>
+      <SearchBar
+        :searchQuery="searchQuery || isbnScanned"
+        @update:searchQuery="(q) => (searchQuery = q)"
+        @search-complete="performSearch"
+      />
     </div>
+
     <BarcodeScanner v-model="isbnScanned" />
     <ResultList :results="searchResults" :has-searched="hasSearched" :is-loading="isLoading" />
-    <PaginationBar
-      :page="page"
-      @update:page="handlePage"
-      :max-page="maxPage"
-      :has-searched="hasSearched"
-    />
   </q-page>
 </template>
 
 <script setup>
-import PaginationBar from 'src/components/PaginationBar.vue'
 import ResultList from 'src/components/ResultList.vue'
 import SearchBar from 'src/components/SearchBar.vue'
 
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import BarcodeScanner from './BarcodeScanner.vue'
+import { api } from 'src/boot/axios'
 const router = useRouter()
 const route = useRoute()
 const searchResults = ref([])
 const searchQuery = ref(route.query.q || '')
-console.log(route.query)
+const isbnScanned = ref('')
 const hasSearched = ref(false)
 const isLoading = ref(false)
 const page = ref(1)
-const maxPage = ref(5)
-const isbnScanned = ref('')
 
-const handleSearchResults = (results) => {
-  isLoading.value = false
-  searchResults.value = results
-  hasSearched.value = true
-  // console.log(searchResults.value)
+const performSearch = async (query) => {
+  isLoading.value = true
+  try {
+    const res = await api.get('/api/v1/aladin/search', {
+      params: { query, page: 1 },
+    })
+    searchResults.value = res.data.content
+    hasSearched.value = true
+  } catch (err) {
+    console.error(err)
+  } finally {
+    isLoading.value = false
+  }
 }
 
-const handleQuery = (query) => {
-  searchQuery.value = query
-}
-
-const handlePage = (newPage) => {
-  page.value = newPage
-}
-
-// watch(searchQuery, () => console.log(searchQuery))
-
-watch(isbnScanned, async (newIsbn) => {
-  console.log(newIsbn)
+onMounted(() => {
+  const q = route.query.q
+  if (q && q.trim()) {
+    searchQuery.value = q
+    performSearch(q)
+  }
 })
+
+watch(isbnScanned, (val) => {
+  if (val) {
+    searchQuery.value = val
+    performSearch(val)
+  }
+})
+
 watch(page, () => router.push({ query: { query: searchQuery.value, page: page.value } }))
 </script>
 

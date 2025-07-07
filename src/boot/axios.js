@@ -1,7 +1,6 @@
 // src/boot/axios.js
 import { boot } from 'quasar/wrappers'
 import axios from 'axios'
-import { Notify } from 'quasar'
 // import { useRouter } from 'vue-router'
 
 // API 클라이언트 설정
@@ -10,11 +9,11 @@ const api = axios.create({
   timeout: 10000,
   withCredentials: true, // 세션 쿠키를 전송하기 위해
   headers: {
-    access: localStorage.getItem('access'),
+    Authorization: `Bearer ${localStorage.getItem('access')}`,
   },
 })
 
-export default boot(({ app, router }) => {
+export default boot(({ app }) => {
   // const router = useRouter()
 
   // 응답 인터셉터 설정
@@ -22,7 +21,7 @@ export default boot(({ app, router }) => {
     (config) => {
       const token = localStorage.getItem('access')
       if (token) {
-        config.headers['access'] = token
+        config.headers['Authorization'] = `Bearer ${token}`
       }
       return config
     },
@@ -31,38 +30,16 @@ export default boot(({ app, router }) => {
       // 401 Unauthorized 오류 처리
       if (error.response && error.response.status === 401) {
         const data = error.response.data
-
         // 백엔드에서 보낸 리다이렉트 정보 저장
         if (data.originalRequest) {
           localStorage.setItem('redirectAfterLogin', data.originalRequest)
         }
+        if (localStorage.getItem('access')) {
+          const newToken = await refreshToken()
+          localStorage.setItem('access', newToken)
 
-        // 로그인 페이지로 이동
-
-        Notify.create({
-          type: 'warning',
-          message: '로그인이 필요한 서비스입니다.',
-        })
-        router.push('/login')
-      }
-
-      //403 Forbidden 처리
-      if (error.response && error.response.status == 403) {
-        console.log(error)
-        const access = localStorage.getItem('access')
-        const refresh = localStorage.getItem('refresh')
-        if (access && refresh) {
-          const response = await api.post(
-            '/reissue',
-            {},
-            {
-              headers: { access: access, refresh: refresh },
-            },
-          )
-          console.log(response)
-
-          console.log('재발급 후 access token: ', localStorage.getItem('access'))
-          console.log('재발급 후 refresh token: ', localStorage.getItem('refresh'))
+          error.config.headers['Authorization'] = `Bearer ${newToken}`
+          return axios(error.config)
         }
       }
 
@@ -77,5 +54,23 @@ export default boot(({ app, router }) => {
   axios.defaults.withCredentials = true
   app.provide('api', api)
 })
+
+async function refreshToken() {
+  const refreshToken = localStorage.getItem('refresh')
+  try {
+    const response = await axios.post(
+      `${process.env.SPRING_SERVER}/refresh`,
+      {
+        refresh: refreshToken,
+      },
+      {
+        Authorization: `Bearer ${localStorage.getItem('access')}`,
+      },
+    )
+    console.log(response.data)
+  } catch (err) {
+    console.error(err)
+  }
+}
 
 export { api, axios } // 기본 axios 인스턴스도 내보냄

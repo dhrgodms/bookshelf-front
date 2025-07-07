@@ -57,24 +57,13 @@ async function onSubmit() {
   submitting.value = true
 
   try {
-    const access = localStorage.getItem('access')
-    const response = await api.post(
-      `${process.env.SPRING_SERVER}/api/v1/shelves`,
-      {
-        shelfDto: {
-          shelfName: shelfName.value,
-          shelfMemo: shelfMemo.value,
-          creator: {
-            username: 'userA',
-          },
-          isPublic: isPublic.value,
-        },
-        username: 'userA', // 실제로는 로그인한 사용자 정보를 사용해야 함
+    const response = await api.post(`${process.env.SPRING_SERVER}/api/v1/shelves`, {
+      shelfDto: {
+        shelfName: shelfName.value,
+        shelfMemo: shelfMemo.value,
+        isPublic: isPublic.value,
       },
-      {
-        headers: { access: access },
-      },
-    )
+    })
     console.log(response.data)
 
     $q.notify({

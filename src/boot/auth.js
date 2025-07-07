@@ -9,15 +9,13 @@ export async function login(email, password) {
 
 export async function logout() {
   return axios.post(
-    axios.post(
-      `${process.env.SPRING_SERVER}/logout`,
-      {},
-      {
-        headers: {
-          access: localStorage.getItem('access'),
-          refresh: localStorage.getItem('refresh'),
-        },
+    `${process.env.SPRING_SERVER}/logout`,
+    {},
+    {
+      headers: {
+        access: localStorage.getItem('access'),
+        refresh: localStorage.getItem('refresh'),
       },
-    ),
+    },
   )
 }

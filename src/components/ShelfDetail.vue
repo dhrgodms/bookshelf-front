@@ -128,7 +128,7 @@ const makeBook = async () => {
           item.isbn,
           item.seriesInfo?.seriesName,
           item.categoryName,
-          item.link,
+          item.aladinUrl,
         )
         bookCache.set(item.isbn, newBook)
         newBooks.push(newBook)
