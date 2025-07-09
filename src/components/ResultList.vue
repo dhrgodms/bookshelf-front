@@ -43,10 +43,22 @@ const state = reactive({
   error: null,
 })
 
+const props = defineProps({
+  results: {
+    type: Array,
+    default: () => [],
+  },
+  hasSearched: {
+    type: Boolean,
+    default: false,
+  },
+})
+
 const makeBook = async () => {
   state.loading = true
   const newBooks = []
 
+  console.log(props.results)
   for (const item of props.results) {
     // const cached = bookCache.get(item.isbn13)
 
@@ -62,7 +74,7 @@ const makeBook = async () => {
       item.isbn,
       item.seriesName,
       item.categoryName,
-      item.link,
+      item.aladinUrl,
     )
     bookCache.set(item.isbn13, newBook)
     newBooks.push(newBook)
@@ -84,7 +96,7 @@ async function onOwnClick(item) {
       isbn: item.isbn,
       seriesName: item.seriesName,
       categoryName: item.categoryName,
-      link: item.link,
+      aladinUrl: item.aladinUrl,
     },
     'userA',
   )
@@ -101,23 +113,12 @@ async function onLikeClick(item) {
       isbn: item.isbn,
       seriesName: item.seriesName,
       categoryName: item.categoryName,
-      link: item.link,
+      aladinUrl: item.aladinUrl,
     },
     'userA',
   )
   item.like = !item.like
 }
-
-const props = defineProps({
-  results: {
-    type: Array,
-    default: () => [],
-  },
-  hasSearched: {
-    type: Boolean,
-    default: false,
-  },
-})
 
 watch(
   () => props.results,

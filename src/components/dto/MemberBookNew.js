@@ -9,7 +9,7 @@ class MemberBookNew {
     isbn,
     seriesName,
     categoryName,
-    link,
+    aladinUrl,
     memberId,
     bookId,
     bookshelfId,
@@ -24,7 +24,7 @@ class MemberBookNew {
     this.isbn = isbn
     this.seriesName = seriesName
     this.categoryName = categoryName
-    this.link = link
+    this.aladinUrl = aladinUrl
     this.memberId = memberId
     this.bookId = bookId
     this.bookshelfId = bookshelfId

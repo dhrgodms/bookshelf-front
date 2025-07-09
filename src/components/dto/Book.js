@@ -1,5 +1,5 @@
 class Book {
-  constructor(title, author, publisher, cover, pubdate, isbn, seriesName, categoryName, link) {
+  constructor(title, author, publisher, cover, pubdate, isbn, seriesName, categoryName, aladinUrl) {
     this.title = title
     this.author = author
     this.publisher = publisher
@@ -8,7 +8,7 @@ class Book {
     this.isbn = isbn
     this.seriesName = seriesName
     this.categoryName = categoryName
-    this.link = link
+    this.aladinUrl = aladinUrl
   }
 }
 

@@ -90,7 +90,7 @@
           padding="0.1em"
           :color="'grey'"
           :icon="'info'"
-          :href="book.link"
+          :href="book.aladinUrl"
           size="1em"
         />
       </q-card-actions>

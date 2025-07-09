@@ -97,7 +97,7 @@
           padding="0.1em"
           :color="'grey'"
           :icon="'info'"
-          :href="book.link"
+          :href="book.aladinUrl"
           size="1em"
         />
       </q-card-actions>
@@ -166,15 +166,7 @@ async function fetchMyShelves() {
   isLoading.value = true
 
   try {
-    const access = localStorage.getItem('access')
-    // 여기서 'userA'의 책장 목록을 가져오는 API 호출
-    const response = await api.post(
-      `${process.env.SPRING_SERVER}/api/v1/bookshelves/member`,
-      { username: 'userA' }, // 현재 테스트 유저 'userA' 사용
-      {
-        headers: { access: access },
-      },
-    )
+    const response = await api.post(`${process.env.SPRING_SERVER}/api/v1/bookshelves/member`)
     console.log(response.data)
 
     myShelves.value = response.data

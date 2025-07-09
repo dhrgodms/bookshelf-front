@@ -65,7 +65,7 @@ const makeBook = async () => {
         item.book.isbn,
         item.book.seriesInfo?.seriesName,
         item.book.categoryName,
-        item.book.link,
+        item.book.aladinUrl,
         item.member,
         item.book.id,
         item.bookshelfId,

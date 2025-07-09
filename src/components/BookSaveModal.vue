@@ -184,20 +184,11 @@ const newLibraryColor = ref('brown')
 // 새 카테고리 추가
 async function addLibrary() {
   try {
-    const access = localStorage.getItem('access')
-
-    const response = await api.post(
-      `${process.env.SPRING_SERVER}/api/v1/bookshelves`,
-      {
-        username: 'userA', // 실제로는 로그인한 사용자 정보를 사용해야 함
-        bookshelfName: newLibraryName.value,
-        bookshelfColor: newLibraryColor.value,
-        notes: newLibraryMemo.value,
-      },
-      {
-        headers: { access: access },
-      },
-    )
+    const response = await api.post(`${process.env.SPRING_SERVER}/api/v1/bookshelves`, {
+      bookshelfName: newLibraryName.value,
+      bookshelfColor: newLibraryColor.value,
+      notes: newLibraryMemo.value,
+    })
 
     console.log(response.data)
 
@@ -240,7 +231,6 @@ async function addShelf(bookshelfId, shelfPosition) {
     {
       bookshelfId: bookshelfId,
       shelfPosition: shelfPosition,
-      username: 'userA',
     },
     {
       headers: { access: access },
@@ -287,19 +277,10 @@ async function saveBook() {
   if (!canSave.value) return
 
   try {
-    const access = localStorage.getItem('access')
-
-    const response = await api.post(
-      `${process.env.SPRING_SERVER}/api/v1/memberbooksnew`,
-      {
-        username: 'userA',
-        bookDto: props.book,
-        location: selectedShelves.value,
-      },
-      {
-        headers: { access: access },
-      },
-    )
+    const response = await api.post(`${process.env.SPRING_SERVER}/api/v1/memberbooksnew`, {
+      bookDto: props.book,
+      location: selectedShelves.value,
+    })
 
     console.log(response.data)
 
