@@ -149,6 +149,15 @@ export default defineConfig((/* ctx */) => {
       // extendPWACustomSWConf (esbuildConf) {},
       // extendGenerateSWOptions (cfg) {},
       // extendInjectManifestOptions (cfg) {}
+
+      // favicon 설정
+      iconPaths: {
+        favicon: 'src/assets/logo.png',
+        favicon16: 'src/assets/logo.png',
+        favicon32: 'src/assets/logo.png',
+        favicon96: 'src/assets/logo.png',
+        favicon128: 'src/assets/logo.png'
+      }
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/developing-cordova-apps/configuring-cordova
