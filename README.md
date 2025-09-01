@@ -113,28 +113,9 @@ src/
 프로젝트 루트에 `.env` 파일을 생성하고 필요한 환경 변수를 설정하세요.
 
 ```env
-VITE_API_BASE_URL=https://bookshelf-server-production.up.railway.app
+VITE_API_BASE_URL=설정
 ```
 
-### 개발 서버 프록시 설정
-`quasar.config.js`에서 API 프록시가 설정되어 있습니다.
-
-## 📱 반응형 디자인
-
-이 프로젝트는 다양한 화면 크기에 대응하도록 설계되었습니다:
-
-- **데스크톱**: 1200px 이상
-- **태블릿**: 768px - 1199px
-- **모바일**: 480px - 767px
-- **작은 모바일**: 480px 이하
-
-## 🤝 기여하기
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
 
 ## 📄 라이선스
 

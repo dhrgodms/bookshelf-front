@@ -2,8 +2,7 @@ import { defineRouter } from '#q-app/wrappers'
 import { createRouter, createWebHistory } from 'vue-router'
 import routes from './routes'
 import { useLoggedIn } from 'src/stores/loggedIn'
-// import api from '../boot/axios'
-// import axios from '../boot/axios'
+import { isTokenExists, isTokenExpired, getAccessToken } from '../utils/auth.js'
 
 /*
  * If not building with SSR mode, you can
@@ -41,12 +40,13 @@ export default defineRouter(function (/* { store, ssrContext } */) {
       return
     }
 
-    const accessToken = localStorage.getItem('access')
-    if (accessToken) {
-      console.log('accesstoken in index.js: ' + accessToken)
+    // 토큰 존재 여부와 만료 시간 확인
+    if (isTokenExists() && !isTokenExpired(getAccessToken())) {
+      console.log('Valid access token found: ' + getAccessToken())
       loggedInState.login()
       next()
     } else {
+      console.log('No valid token found, redirecting to login')
       loggedInState.logout()
       next('/login')
     }

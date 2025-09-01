@@ -95,14 +95,14 @@
 </template>
 
 <script setup>
-import { api } from 'src/boot/axios'
-import { onMounted, ref, watch, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import MemberShelfView from 'src/components/MemberShelfView.vue'
-import SearchedShelfView from 'src/components/SearchedShelfView.vue'
-import ResultList from 'src/components/ResultList.vue'
 import { debounce } from 'quasar'
+import { api } from 'src/boot/axios'
+import MemberShelfView from 'src/components/MemberShelfView.vue'
+import ResultList from 'src/components/ResultList.vue'
 import SearchBar from 'src/components/SearchBar.vue'
+import SearchedShelfView from 'src/components/SearchedShelfView.vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
@@ -171,10 +171,10 @@ const debouncedSearch = debounce(async (keyword) => {
       api.get('/api/v1/aladin/search/limit', {
         params: { query: keyword, page: page.value, limit: 4 },
       }),
-      api.get(`${process.env.SPRING_SERVER}/api/v1/shelves/search`, {
+      api.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/shelves/search`, {
         params: { q: keyword },
       }),
-      api.get(`${process.env.SPRING_SERVER}/api/v1/bookshelves/member`, {
+      api.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/bookshelves/member`, {
         params: { page: page.value },
       }),
     ])

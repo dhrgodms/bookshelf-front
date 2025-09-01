@@ -18,9 +18,9 @@
 import { api } from 'src/boot/axios'
 import ShelfSearchBar from 'src/components/ShelfSearchBar.vue'
 
+import MemberBookView from 'src/components/MemberBookView.vue'
 import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import MemberBookView from 'src/components/MemberBookView.vue'
 const router = useRouter()
 const shelfBooks = ref([])
 const searchQuery = ref('')
@@ -37,7 +37,7 @@ async function getShelf() {
   router.push(`/member/book?page=${page.value}`)
 
   try {
-    const response = await api.post(`${process.env.SPRING_SERVER}/api/v1/memberbooksnew/member`, {
+    const response = await api.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/memberbooksnew/member`, {
       params: { page: page.value },
     })
     console.log(response.data)

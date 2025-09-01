@@ -174,10 +174,11 @@
 </template>
 
 <script setup>
+import { useQuasar } from 'quasar'
 import { api } from 'src/boot/axios'
+import { getAccessToken } from 'src/utils/auth'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { useQuasar } from 'quasar'
 
 const route = useRoute()
 const $q = useQuasar()
@@ -242,13 +243,13 @@ async function getShelf() {
   if (!shelfId.value) return
 
   try {
-    const access = localStorage.getItem('access')
+    const access = getAccessToken()
     isLoading.value = true
 
     // 책장 정보 가져오기 (예: 이름, 설명, 공개 여부, 좋아요 수)
     // 실제 API 응답 구조에 따라 shelfInfo.value에 할당
     const shelfResponse = await api.get(
-      `${process.env.SPRING_SERVER}/api/v1/bookshelves/${shelfId.value}`,
+      `${import.meta.env.VITE_API_BASE_URL}/api/v1/bookshelves/${shelfId.value}`,
       {
         headers: { access: access },
       },
@@ -295,9 +296,9 @@ async function searchBooks() {
   hasSearchedBooks.value = false
 
   try {
-    const access = localStorage.getItem('access')
+    const access = getAccessToken()
     // 실제 책 검색 API 엔드포인트와 파라미터에 맞게 수정
-    const response = await api.get(`${process.env.SPRING_SERVER}/api/v1/aladin/search`, {
+    const response = await api.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/aladin/search`, {
       params: { query: bookSearchQuery.value, page: 1 },
       headers: { access: access },
     })
@@ -324,7 +325,7 @@ async function searchBooks() {
 async function addBookToShelf(book) {
   try {
     // 실제 책장-책 추가 API 엔드포인트와 요청 바디에 맞게 수정
-    await api.post(`${process.env.SPRING_SERVER}/api/v1/memberbooksnew`, {
+    await api.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/memberbooksnew`, {
       bookDto: book,
       location: ['1-1'], // TODO 여기해야됨 연결
     })
@@ -363,7 +364,7 @@ async function removeBookFromShelf(memberbook) {
     }).onOk(async () => {
       const access = localStorage.getItem('access')
       // 실제 책장-책 제거 API 엔드포인트에 맞게 수정
-      await api.delete(`${process.env.SPRING_SERVER}/api/v1/memberbooksnew/${memberbook.id}`, {
+      await api.delete(`${import.meta.env.VITE_API_BASE_URL}/api/v1/memberbooksnew/${memberbook.id}`, {
         headers: { access: access },
       })
 

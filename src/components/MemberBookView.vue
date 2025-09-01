@@ -29,13 +29,13 @@
 
 <!-- TODO memberbook에 알맞게 수정하기 -->
 <script setup>
-import ResultSkeleton from './skeleton/ResultSkeleton.vue'
-import MemberBookNew from './dto/MemberBookNew'
 import { nextTick, onMounted, reactive, watch } from 'vue'
 import ShelfResultNone from './BookResultNone.vue'
+import MemberBookNew from './dto/MemberBookNew'
+import ResultSkeleton from './skeleton/ResultSkeleton.vue'
 // import { api } from 'src/boot/axios'
-import BookCard from './BookCard.vue'
 import { api } from 'src/boot/axios'
+import BookCard from './BookCard.vue'
 
 const bookCache = new Map()
 
@@ -82,7 +82,7 @@ const makeBook = async () => {
 
 async function onOwnClick(item) {
   await api.post(
-    `${process.env.SPRING_SERVER}/api/memberbook/own-change`,
+    `${import.meta.env.VITE_API_BASE_URL}/api/memberbook/own-change`,
     {
       memberbookId: item.memberbookId,
     },
@@ -96,7 +96,7 @@ async function onOwnClick(item) {
 
 async function onLikeClick(item) {
   await api.post(
-    `${process.env.SPRING_SERVER}/api/memberbook/like-change`,
+    `${import.meta.env.VITE_API_BASE_URL}/api/memberbook/like-change`,
     {
       memberbookId: item.memberbookId,
     },

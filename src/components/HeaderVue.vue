@@ -34,6 +34,7 @@ import { useLoggedIn } from 'src/stores/loggedIn'
 import { useUserInfo } from 'src/stores/userInfo'
 import { useRouter } from 'vue-router'
 import * as authApi from '../boot/auth'
+import { removeTokens } from '../utils/auth.js'
 
 const $q = useQuasar()
 const loggedInState = useLoggedIn()
@@ -45,8 +46,7 @@ async function onLogoutClick() {
   console.log(response.data)
   router.push('/')
   console.log('로그아웃 되었습니다.')
-  localStorage.removeItem('access')
-  localStorage.removeItem('refresh')
+  removeTokens()
   loggedInState.logout()
   userInfoState.setUsername('')
   $q.notify({

@@ -38,10 +38,10 @@
 </template>
 
 <script setup>
+import { useQuasar } from 'quasar'
+import { api } from 'src/boot/axios'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { api } from 'src/boot/axios'
-import { useQuasar } from 'quasar'
 
 const router = useRouter()
 const $q = useQuasar()
@@ -57,7 +57,7 @@ async function onSubmit() {
   submitting.value = true
 
   try {
-    const response = await api.post(`${process.env.SPRING_SERVER}/api/v1/shelves`, {
+    const response = await api.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/shelves`, {
       shelfDto: {
         shelfName: shelfName.value,
         shelfMemo: shelfMemo.value,

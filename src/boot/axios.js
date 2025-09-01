@@ -1,15 +1,16 @@
 // src/boot/axios.js
-import { boot } from 'quasar/wrappers'
 import axios from 'axios'
+import { boot } from 'quasar/wrappers'
+import { getAccessToken, getRefreshToken } from '../utils/auth.js'
 // import { useRouter } from 'vue-router'
 
 // API 클라이언트 설정
 const api = axios.create({
-  baseURL: process.env.SPRING_SERVER,
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 10000,
   withCredentials: true, // 세션 쿠키를 전송하기 위해
   headers: {
-    Authorization: `Bearer ${localStorage.getItem('access')}`,
+    Authorization: `Bearer ${getAccessToken()}`,
   },
 })
 
@@ -19,7 +20,7 @@ export default boot(({ app }) => {
   // 응답 인터셉터 설정
   api.interceptors.response.use(
     (config) => {
-      const token = localStorage.getItem('access')
+      const token = getAccessToken()
       if (token) {
         config.headers['Authorization'] = `Bearer ${token}`
       }
@@ -34,9 +35,13 @@ export default boot(({ app }) => {
         if (data.originalRequest) {
           localStorage.setItem('redirectAfterLogin', data.originalRequest)
         }
-        if (localStorage.getItem('access')) {
+        if (getAccessToken()) {
           const newToken = await refreshToken()
-          localStorage.setItem('access', newToken)
+          // 새로운 토큰 저장 (유틸리티 함수 사용)
+          if (newToken) {
+            const { setTokens } = await import('../utils/auth.js')
+            setTokens(newToken, getRefreshToken())
+          }
 
           error.config.headers['Authorization'] = `Bearer ${newToken}`
           return axios(error.config)
@@ -56,21 +61,24 @@ export default boot(({ app }) => {
 })
 
 async function refreshToken() {
-  const refreshToken = localStorage.getItem('refresh')
+  const refreshToken = getRefreshToken()
   try {
     const response = await axios.post(
-      `${process.env.SPRING_SERVER}/refresh`,
+      `${import.meta.env.VITE_API_BASE_URL}/refresh`,
       {
         refresh: refreshToken,
       },
       {
-        Authorization: `Bearer ${localStorage.getItem('access')}`,
+        Authorization: `Bearer ${getAccessToken()}`,
       },
     )
     console.log(response.data)
+    return response.data.token // 새로운 access token 반환
   } catch (err) {
     console.error(err)
+    return null
   }
 }
 
-export { api, axios } // 기본 axios 인스턴스도 내보냄
+export { api, axios }; // 기본 axios 인스턴스도 내보냄
+

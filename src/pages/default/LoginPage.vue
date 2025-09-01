@@ -46,6 +46,7 @@ import { useRouter } from 'vue-router'
 import * as authApi from '../../boot/auth'
 import { useLoggedIn } from 'src/stores/loggedIn'
 import { useUserInfo } from 'src/stores/userInfo'
+import { setTokens } from '../../utils/auth.js'
 
 const $q = useQuasar()
 const router = useRouter()
@@ -65,11 +66,8 @@ async function handleForm() {
     const accessToken = response.data?.token
     const refreshToken = response.data?.refresh
 
-    if (accessToken) {
-      localStorage.setItem('access', accessToken)
-    }
-    if (refreshToken) {
-      localStorage.setItem('refresh', refreshToken)
+    if (accessToken && refreshToken) {
+      setTokens(accessToken, refreshToken)
     }
 
     console.log('Login success!!')

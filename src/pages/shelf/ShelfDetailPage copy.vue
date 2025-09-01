@@ -8,9 +8,9 @@
 // import axios from 'axios'
 import { api } from 'src/boot/axios'
 
+import ShelfDetail from 'src/components/ShelfDetail.vue'
 import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import ShelfDetail from 'src/components/ShelfDetail.vue'
 const router = useRouter()
 const shelfShelves = ref([])
 const searchResults = ref([])
@@ -27,7 +27,7 @@ async function getShelf() {
 
   try {
     const access = localStorage.getItem('access')
-    const response = await api.get(`${process.env.SPRING_SERVER}/api/v1/shelves/${1}`, {
+    const response = await api.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/shelves/${1}`, {
       params: { page: page.value },
       headers: { access: access },
     })

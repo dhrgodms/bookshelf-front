@@ -89,13 +89,13 @@
 </template>
 
 <script setup>
+import { api } from 'src/boot/axios'
+import { nextTick, onMounted, reactive, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import ShelfResultNone from './BookResultNone.vue'
+import MemberShelfDto from './dto/MemberShelfDto'
 import ResultSkeleton from './skeleton/ResultSkeleton.vue'
 import { editDate, editLength } from './Utils'
-import { nextTick, onMounted, reactive, watch } from 'vue'
-import ShelfResultNone from './BookResultNone.vue'
-import { api } from 'src/boot/axios'
-import MemberShelfDto from './dto/MemberShelfDto'
-import { useRouter } from 'vue-router'
 
 const shelfCache = new Map()
 const router = useRouter()
@@ -134,7 +134,7 @@ const makeShelf = async () => {
 
 async function onLikeClick(item) {
   await api.post(
-    `${process.env.SPRING_SERVER}/api/memberbook/like-change`,
+    `${import.meta.env.VITE_API_BASE_URL}/api/memberbook/like-change`,
     {
       memberbookId: item.memberbookId,
     },

@@ -120,12 +120,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { api } from 'src/boot/axios'
 import { useQuasar } from 'quasar'
-import { editLength } from './Utils'
+import { api } from 'src/boot/axios'
+import { ref } from 'vue'
 import BookSaveModal from './BookSaveModal.vue'
 import ShelfCreateDialog from './ShelfCreateDialog.vue'
+import { editLength } from './Utils'
 
 // Props 정의
 const props = defineProps({
@@ -166,7 +166,7 @@ async function fetchMyShelves() {
   isLoading.value = true
 
   try {
-    const response = await api.post(`${process.env.SPRING_SERVER}/api/v1/bookshelves/member`)
+    const response = await api.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/bookshelves/member`)
     console.log(response.data)
 
     myShelves.value = response.data

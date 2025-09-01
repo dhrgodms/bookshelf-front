@@ -131,7 +131,7 @@
 <script setup>
 import { useQuasar } from 'quasar'
 import { api } from 'src/boot/axios'
-import { ref, reactive, computed } from 'vue'
+import { computed, reactive, ref } from 'vue'
 
 const props = defineProps({
   show: Boolean,
@@ -184,7 +184,7 @@ const newLibraryColor = ref('brown')
 // 새 카테고리 추가
 async function addLibrary() {
   try {
-    const response = await api.post(`${process.env.SPRING_SERVER}/api/v1/bookshelves`, {
+    const response = await api.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/bookshelves`, {
       bookshelfName: newLibraryName.value,
       bookshelfColor: newLibraryColor.value,
       notes: newLibraryMemo.value,
@@ -227,7 +227,7 @@ async function addShelf(bookshelfId, shelfPosition) {
   const access = localStorage.getItem('access')
 
   const response = await api.post(
-    `${process.env.SPRING_SERVER}/api/v1/shelvesnew`,
+    `${import.meta.env.VITE_API_BASE_URL}/api/v1/shelvesnew`,
     {
       bookshelfId: bookshelfId,
       shelfPosition: shelfPosition,
@@ -277,7 +277,7 @@ async function saveBook() {
   if (!canSave.value) return
 
   try {
-    const response = await api.post(`${process.env.SPRING_SERVER}/api/v1/memberbooksnew`, {
+    const response = await api.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/memberbooksnew`, {
       bookDto: props.book,
       location: selectedShelves.value,
     })

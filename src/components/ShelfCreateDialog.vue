@@ -72,7 +72,7 @@ async function createNewShelf() {
   isCreatingShelf.value = true
 
   try {
-    const response = await api.post(`${process.env.SPRING_SERVER}/api/v1/shelves`, {
+    const response = await api.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/shelves`, {
       shelfDto: {
         shelfName: newShelf.value.name,
         shelfMemo: newShelf.value.description,
@@ -109,7 +109,7 @@ async function addBookToShelf(book, shelfId) {
   try {
     const access = localStorage.getItem('access')
     await api.post(
-      `${process.env.SPRING_SERVER}/api/v1/shelfbooks`,
+      `${import.meta.env.VITE_API_BASE_URL}/api/v1/shelfbooks`,
       {
         shelfId: shelfId,
         bookDto: book,

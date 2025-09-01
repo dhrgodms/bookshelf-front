@@ -74,7 +74,7 @@ const accept = ref(true)
 const loginSuccess = ref(null)
 
 async function handleForm() {
-  const response = await axios.post(`${process.env.SPRING_SERVER}/join`, {
+  const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/join`, {
     name: name.value,
     email: email.value,
     password: password.value,

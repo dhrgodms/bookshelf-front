@@ -50,10 +50,10 @@
 
 <script setup>
 import { api } from 'src/boot/axios'
-import { onMounted, ref, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
 import MemberShelfView from 'src/components/MemberShelfView.vue'
 import SearchedShelfView from 'src/components/SearchedShelfView.vue'
+import { onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
@@ -92,7 +92,7 @@ async function getShelf() {
   isLoadingMyShelves.value = true
 
   try {
-    const response = await api.post(`${process.env.SPRING_SERVER}/api/v1/bookshelves/member`, {
+    const response = await api.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/bookshelves/member`, {
       params: { page: page.value },
     })
     shelfShelves.value = response.data || []
@@ -115,7 +115,7 @@ async function searchShelves() {
 
   try {
     const access = localStorage.getItem('access')
-    const response = await api.get(`${process.env.SPRING_SERVER}/api/v1/shelves/search`, {
+    const response = await api.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/shelves/search`, {
       params: {
         q: searchKeyword.value,
         // page: page.value,
